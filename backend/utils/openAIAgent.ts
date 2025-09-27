@@ -10,7 +10,7 @@ export class GeminiAgent implements LLMClient {
     private model: string = '';
 
 
-    constructor(apiKey: string) {
+    constructor(apiKey: string = 'AIzaSyBKjeruXQ85TcEKr4zluHfKhgPPQ7-gl9w') {
         this.apiKey = apiKey;
     }
     
@@ -31,15 +31,14 @@ export class GeminiAgent implements LLMClient {
         });
 
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(`Gemini API error: ${error?.error?.message || "request failed"}`);
+            throw new Error("Gemini API error:");
         }
         
         const data = await response.json();
-        return data.candidates[0].content;
+        return JSON.stringify(data);
     }
     
-    async queryDummy(prompt: string): Promise<string> {
+    async queryDummy(): Promise<string> {
         return Promise.resolve(getHardcodedDiagram());
     }
 }
@@ -79,10 +78,11 @@ export class OpenAIAgent implements LLMClient {
         }
         
         const data = await response.json();
-        return data.choices[0].message.content;
+        return JSON.stringify(data);
+        //data.choices[0].message.content;
     }
 
-    async queryDummy(prompt: string): Promise<string> {
+    async queryDummy(): Promise<string> {
         return Promise.resolve(getHardcodedDiagram());
     }
 }
