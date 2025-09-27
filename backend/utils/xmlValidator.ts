@@ -7,7 +7,6 @@ export interface DiagramValidationResult {
   correctedXML?: string;
   elementCount: number;
 }
-
 /**
  * Validates and corrects Draw.io XML format
  */
@@ -91,7 +90,6 @@ export class XMLValidator {
     fixed = fixed.replace(/(?<=")([^"]*?)&(?![a-zA-Z0-9#]{1,10};)([^"]*?)(?=")/g, '$1&amp;$2');
     fixed = fixed.replace(/(?<=")([^"]*?)<(?![/!?a-zA-Z])([^"]*?)(?=")/g, '$1&lt;$2');
     fixed = fixed.replace(/(?<=")([^"]*?)>(?![^<]*<)([^"]*?)(?=")/g, '$1&gt;$2');
-
     // Fix self-closing tags that should be properly closed
     const selfClosingTags = ['mxCell', 'mxGeometry', 'mxPoint'];
     for (const tag of selfClosingTags) {
