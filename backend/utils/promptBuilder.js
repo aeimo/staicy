@@ -6,6 +6,18 @@ const PROMPT_FILE = path.join(__dirname, '../drawio_prompts.yml');
 const rawYaml = fs.readFileSync(PROMPT_FILE, 'utf8');
 const prompts = yaml.load(rawYaml);
 
+class PromptBuilder {
+  prompts: any;
+
+  constructor() {
+    const PROMPT_FILE = path.join(__dirname, 'prompts.yml');
+    const rawYaml = fs.readFileSync(PROMPT_FILE, 'utf8');
+    this.prompts = yaml.load(rawYaml);
+  }
+
+
+}
+
 /**
  * Build a draw.io prompt for initial diagram generation
  * @param {string} codebaseInput - The user's codebase description
