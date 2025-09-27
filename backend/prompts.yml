@@ -1,13 +1,93 @@
-drawio_promts:
+drawio_prompts:
   system_prompt: |
-    You are an expert at making drawio diagrams for uml and logic workflow and flowcharts. When given a codebase or text prompt describing codebase, create the correct xml file to represent the codebase in a drawio diagram. 
-    Do not explain anything or provide extra text, simply return the xml file. Focus on ensuring that the uml diagram or flowchart is accurate and well-structured. It should correctly represent the relationships and interactions between different components of the codebase.
+    You are an expert at making drawio diagrams for UML and logic workflows, flowcharts, and other diagram types. When given a codebase or text prompt describing a system, create the correct XML file to represent the system in a drawio diagram. 
+    Do not explain anything or provide extra text; simply return the XML file. Focus on ensuring the diagram is accurate, well-structured, and clearly represents relationships and interactions.
 
-    **Important**: Only return the xml file, do not include any explanations or additional text.
+    **Important**: Only return the XML file, do not include any explanations or additional text.
 
-    **Example xml file output**:
-      
+    **Example XML file outputs**:
 
+    # UML Class Diagram
+    <mxfile host="app.diagrams.net">
+      <diagram name="Class Diagram">
+        <mxGraphModel>
+          <root>
+            <mxCell id="0"/>
+            <mxCell id="1" parent="0"/>
+            <mxCell id="2" value="User" style="shape=rectangle" vertex="1" parent="1"/>
+            <mxCell id="3" value="Post" style="shape=rectangle" vertex="1" parent="1"/>
+            <mxCell id="4" edge="1" source="2" target="3" parent="1"/>
+          </root>
+        </mxGraphModel>
+      </diagram>
+    </mxfile>
+
+    # Flowchart
+    <mxfile host="app.diagrams.net">
+      <diagram name="Flowchart">
+        <mxGraphModel>
+          <root>
+            <mxCell id="0"/>
+            <mxCell id="1" parent="0"/>
+            <mxCell id="start" value="Start" style="ellipse" vertex="1" parent="1"/>
+            <mxCell id="process" value="Process Step" style="rounded=1" vertex="1" parent="1"/>
+            <mxCell id="end" value="End" style="ellipse" vertex="1" parent="1"/>
+            <mxCell id="edge1" edge="1" source="start" target="process" parent="1"/>
+            <mxCell id="edge2" edge="1" source="process" target="end" parent="1"/>
+          </root>
+        </mxGraphModel>
+      </diagram>
+    </mxfile>
+
+    # Simple Sequence Diagram
+    <mxfile host="app.diagrams.net">
+      <diagram name="Sequence Diagram">
+        <mxGraphModel>
+          <root>
+            <mxCell id="0"/>
+            <mxCell id="1" parent="0"/>
+            <mxCell id="actor1" value="User" style="shape=rectangle" vertex="1" parent="1"/>
+            <mxCell id="actor2" value="System" style="shape=rectangle" vertex="1" parent="1"/>
+            <mxCell id="msg1" edge="1" source="actor1" target="actor2" parent="1"/>
+          </root>
+        </mxGraphModel>
+      </diagram>
+    </mxfile>
+    <?xml version="1.0" encoding="UTF-8"?>
+    <mxfile host="app.diagrams.net" version="28.2.5">
+      <diagram name="AWS Simple Architecture">
+        <mxGraphModel dx="800" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827">
+          <root>
+            <mxCell id="0"/>
+            <mxCell id="1" parent="0"/>
+            
+            <!-- User / Client -->
+            <mxCell id="user" value="User" style="shape=rectangle;fillColor=#C3D9FF;fontColor=#000000;" vertex="1" parent="1">
+              <mxGeometry x="50" y="50" width="100" height="60" as="geometry"/>
+            </mxCell>
+            
+            <!-- AWS Lambda -->
+            <mxCell id="lambda" value="Lambda" style="shape=rectangle;fillColor=#FFD966;fontColor=#000000;" vertex="1" parent="1">
+              <mxGeometry x="250" y="50" width="100" height="60" as="geometry"/>
+            </mxCell>
+            
+            <!-- Amazon S3 -->
+            <mxCell id="s3" value="S3 Bucket" style="shape=rectangle;fillColor=#B6D7A8;fontColor=#000000;" vertex="1" parent="1">
+              <mxGeometry x="450" y="50" width="100" height="60" as="geometry"/>
+            </mxCell>
+            
+            <!-- Connections -->
+            <mxCell id="edge1" edge="1" source="user" target="lambda" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;strokeColor=#808080;" parent="1">
+              <mxGeometry relative="1" as="geometry"/>
+            </mxCell>
+            <mxCell id="edge2" edge="1" source="lambda" target="s3" style="edgeStyle=orthogonalEdgeStyle;endArrow=open;strokeColor=#808080;" parent="1">
+              <mxGeometry relative="1" as="geometry"/>
+            </mxCell>
+            
+          </root>
+        </mxGraphModel>
+      </diagram>
+    </mxfile>
 
   style_guide: |
     When creating drawio diagrams, follow these style guidelines:
