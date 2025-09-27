@@ -25,9 +25,9 @@ export class PromptBuilder {
    * @param {string} additionalContext - Optional extra context
    * @returns {string} - Final prompt string to send to LLM
    */
-  buildInitialPrompt(codebaseInput, additionalContext = '') {
+  buildInitialPrompt(fileInputs, additionalContext = '') {
     let prompt = prompts.prompt
-      .replace('{{CODEBASEFILESUSERINPUT}}', codebaseInput)
+      .replace('{{CODEBASEFILESUSERINPUT}}', this.processUserInputFiles(fileInputs))
       .replace('{{ADDITIONALCONTEXTUSERINPUT}}', additionalContext);
     return prompt;
   }
@@ -62,6 +62,15 @@ export class PromptBuilder {
   processUserInputFiles(fileInputs) {
     // Process and format user file inputs as needed
     // Logic to turn files to readable text as string
+    let formattedInput = '';
+    formattedInput += 'The user has provided the following files:\n';
+    let i = 1;
+    for (const file of fileInputs) {
+      formattedInput += `File ${i} (${file.name}):\n${file.content}\n\n`;
+      i++;
+    }
+    return formattedInput;
+
   }
 
 
