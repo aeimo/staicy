@@ -172,3 +172,14 @@
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 }
+
+/* Cursor-style Minimalistic Animations */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
