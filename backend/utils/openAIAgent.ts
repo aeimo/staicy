@@ -1,41 +1,55 @@
-import PromptBuilder from "./promptBuilder";
-
 export interface LLMClient {
-    query(prompt: string): Promise<string>;
+    query(prompt: string, system_prompt: string): Promise<string>;
+}
+
+export interface GeminiResponse {
+  candidates: {
+    content: {
+      parts: { text: string }[];
+    };
+  }[];
 }
 
 // Gemini Agent Implementation 
 export class GeminiAgent implements LLMClient {
     private apiKey: string;
-    private model: string = ' ';
-
+    private model: string = 'gemini-2.5-flash';
 
     constructor(apiKey: string = 'AIzaSyBKjeruXQ85TcEKr4zluHfKhgPPQ7-gl9w') {
         this.apiKey = apiKey;
     }
     
-    async query(prompt: string): Promise<string> {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta2/models/${this.model}:generateContent?key=${this.apiKey}`;
+    async query(prompt: string, system_prompt: string): Promise<string> {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
 
-        const contents = [
-            { role: 'system', content: PromptBuilder.getSystemPrompt() },
-            { role: 'user', content: prompt }
-        ];
+        const payload = {
+            contents: [
+            { 
+                role: 'user',
+                parts: [{ text: "System Instructions: " + system_prompt }]   // prompt is your string
+            },
+            { 
+                role: 'user',
+                parts: [{ text: prompt }]   // prompt is your string
+            }
+        ] 
+        };
 
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ contents }),
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-            throw new Error("Gemini API error:");
+            const errText = await response.text();
+            throw new Error(`Gemini API error: ${response.status} ${response.statusText} - ${errText}`);
         }
         
-        const data = await response.json();
-        return JSON.stringify(data);
+        const data = await response.json() as GeminiResponse;
+        return data.candidates?.[0]?.content?.parts?.[0]?.text ?? ""
     }
     
     async queryDummy(): Promise<string> {
@@ -52,11 +66,11 @@ export class OpenAIAgent implements LLMClient {
         this.apiKey = apiKey;
     }
 
-    async query(prompt: string): Promise<string> {
+    async query(prompt: string, system_prompt: string): Promise<string> {
         type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: string };
         const messages: ChatMessage[] = [];
 
-        messages.push({ role: 'system', content: PromptBuilder.getSystemPrompt() });
+        messages.push({ role: 'system', content: system_prompt });
         messages.push({ role: 'user', content: prompt });
 
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
