@@ -14,26 +14,31 @@ export interface GeminiResponse {
 export class GeminiAgent implements LLMClient {
     private apiKey: string;
     private model: string = 'gemini-2.5-flash';
+    private history: { role: string, parts: { text: string }[] }[] = [];
 
     constructor(apiKey: string = 'AIzaSyBKjeruXQ85TcEKr4zluHfKhgPPQ7-gl9w') {
         this.apiKey = apiKey;
     }
     
-    async query(prompt: string, system_prompt: string): Promise<string> {
+    async query(prompt: string, system_prompt: string = "", style_guid: string = ""): Promise<string> {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
 
-        const payload = {
-            contents: [
-            { 
-                role: 'user',
-                parts: [{ text: "System Instructions: " + system_prompt }]   // prompt is your string
-            },
-            { 
-                role: 'user',
-                parts: [{ text: prompt }]   // prompt is your string
-            }
-        ] 
-        };
+        const user_message = {role: "user", parts: [{text: prompt}]};
+
+        if (system_prompt != "") {
+            const system_message = {role: "user", parts: [{text: "System Instructions: " + system_prompt}]};
+            this.history.push(system_message);
+        }
+        if (this.history.length > 10) {
+            this.history = this.history.slice(-10); // Keep only the last 10 messages
+        }
+        this.history.push(user_message);
+        if (style_guid != "") {
+            const style_message = {role: "user", parts: [{text: "Style Guide: " + style_guid}]};
+            this.history.push(style_message);
+        }
+
+        const payload = { contents: this.history };
 
         const response = await fetch(endpoint, {
             method: 'POST',
@@ -49,7 +54,11 @@ export class GeminiAgent implements LLMClient {
         }
         
         const data = await response.json() as GeminiResponse;
-        return data.candidates?.[0]?.content?.parts?.[0]?.text ?? ""
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+        this.history.push({role: "model", parts: [{text: reply}]});
+
+        return reply;
     }
     
     async queryDummy(): Promise<string> {
