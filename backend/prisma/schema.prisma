@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(CONTRIBUTOR)
+  teams     TeamMember[]
+  documents Document[]
+  comments  Comment[]
+  diagrams  Diagram[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Team {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  members     TeamMember[]
+  documents   Document[]
+  settings    TeamSettings?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id     String @id @default(cuid())
+  userId String
+  teamId String
+  role   Role   @default(CONTRIBUTOR)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model TeamSettings {
+  id                String  @id @default(cuid())
+  teamId            String  @unique
+  allowGuestAccess  Boolean @default(false)
+  requireApproval   Boolean @default(false)
+  aiAssistance      Boolean @default(true)
+  diagramGeneration Boolean @default(true)
+  team              Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("team_settings")
+}
+
+model Document {
+  id            String     @id @default(cuid())
+  title         String
+  content       Json       // Rich text content
+  type          DocType    @default(GUIDE)
+  status        DocStatus  @default(DRAFT)
+  version       Int        @default(1)
+  authorId      String
+  author        User       @relation(fields: [authorId], references: [id])
+  teamId        String
+  team          Team       @relation(fields: [teamId], references: [id])
+  diagrams      Diagram[]
+  comments      Comment[]
+  tags          String[]
+  metadata      Json?      // AI-generated metadata
+  aiSuggestions Json?      // AI suggestions for improvements
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("documents")
+}
+
+model Diagram {
+  id          String      @id @default(cuid())
+  title       String
+  type        DiagramType
+  content     Json        // Mermaid/PlantUML code or draw.io XML
+  documentId  String?
+  document    Document?   @relation(fields: [documentId], references: [id])
+  createdBy   String
+  creator     User        @relation(fields: [createdBy], references: [id])
+  isGenerated Boolean     @default(false) // AI-generated flag
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("diagrams")
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  parentId   String?
+  parent     Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    Comment[] @relation("CommentReplies")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model Integration {
+  id          String           @id @default(cuid())
+  type        IntegrationType
+  name        String
+  config      Json
+  teamId      String
+  team        Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  isActive    Boolean          @default(true)
+  lastSync    DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("integrations")
+}
+
+model Team {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  members      TeamMember[]
+  documents    Document[]
+  settings     TeamSettings?
+  integrations Integration[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("teams")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+  CONTRIBUTOR
+}
+
+enum DocType {
+  SPECIFICATION
+  API_REFERENCE
+  ARCHITECTURE
+  PROCESS
+  REQUIREMENTS
+  GUIDE
+}
+
+enum DocStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  ARCHIVED
+}
+
+enum DiagramType {
+  FLOWCHART
+  SEQUENCE
+  CLASS
+  ER
+  ARCHITECTURE
+  NETWORK
+}
+
+enum IntegrationType {
+  GITHUB
+  SLACK
+  CONFLUENCE
+  NOTION
+  JIRA
+  DISCORD
+}
