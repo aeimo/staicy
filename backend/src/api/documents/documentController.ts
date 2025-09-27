@@ -282,6 +282,46 @@ export const documentController = {
     }
   },
 
+  async analyzeCodebase(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { fileContents, type = 'ARCHITECTURE' } = req.body;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        throw new AppError('User not authenticated.', 401);
+      }
+
+      if (!fileContents || !Array.isArray(fileContents)) {
+        throw new AppError('File contents are required.', 400);
+      }
+
+      // Combine all file contents for analysis
+      const combinedContent = fileContents.map(file => 
+        `File: ${file.name}\nType: ${file.type}\nContent:\n${file.content}\n\n`
+      ).join('---\n');
+
+      // Generate documentation from the combined codebase
+      const generatedContent = await aiService.generateDocumentFromCode(combinedContent, type);
+      
+      // Also generate a diagram representation
+      const diagramPrompt = `Create an architecture diagram for this codebase with ${fileContents.length} files: ${fileContents.map(f => f.name).join(', ')}`;
+      const diagramResult = await aiService.generateDrawIODiagram({
+        prompt: diagramPrompt,
+        type: 'ARCHITECTURE',
+        context: 'Codebase Analysis'
+      });
+
+      res.status(201).json({
+        documentation: generatedContent,
+        diagram: diagramResult,
+        fileCount: fileContents.length,
+        message: 'Codebase analyzed successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async improveWithAI(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;

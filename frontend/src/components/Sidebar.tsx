@@ -1,13 +1,11 @@
 import { NavLink } from 'react-router-dom'
 import { 
-  FileText, 
   GitBranch
 } from 'lucide-react'
 
 export const Sidebar: React.FC = () => {
 
   const navigation = [
-    { name: 'Documents', href: '/documents', icon: FileText },
     { name: 'Diagrams', href: '/diagrams', icon: GitBranch },
   ]
 

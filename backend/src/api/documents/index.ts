@@ -16,6 +16,7 @@ router.delete('/:id', requireDocumentAccess, documentController.deleteDocument);
 // AI-specific routes
 router.post('/:id/ai/suggestions', requireDocumentAccess, documentController.getAISuggestions);
 router.post('/generate-from-code', documentController.generateFromCode);
+router.post('/analyze-codebase', documentController.analyzeCodebase);
 router.post('/:id/ai/improve', requireDocumentAccess, documentController.improveWithAI);
 
 // Collaboration routes
