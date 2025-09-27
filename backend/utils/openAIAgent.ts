@@ -7,7 +7,7 @@ export interface LLMClient {
 // Gemini Agent Implementation 
 export class GeminiAgent implements LLMClient {
     private apiKey: string;
-    private model: string = '';
+    private model: string = ' ';
 
 
     constructor(apiKey: string = 'AIzaSyBKjeruXQ85TcEKr4zluHfKhgPPQ7-gl9w') {
