@@ -3,7 +3,6 @@ import {
   Send,
   Upload,
   Loader2,
-  FileText,
   Download
 } from 'lucide-react'
 
@@ -20,29 +19,82 @@ export const LandingPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
   const [showChatHistory, setShowChatHistory] = useState(false)
-  const [diagramXML, setDiagramXML] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const drawioRef = useRef<HTMLIFrameElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Draw.io Integration
+  const [iframeKey, setIframeKey] = useState(0)
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  const updateStatus = (status: string) => {
+    const statusElement = document.getElementById('editor-status')
+    if (statusElement) {
+      statusElement.textContent = status
+    }
+  }
+
+  const refreshIframe = () => {
+    setIsRefreshing(true)
+    setIframeKey(prev => prev + 1)
+    updateStatus('Refreshing diagram...')
+  }
+
+  const startAutoRefresh = () => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval)
+    }
+    
+    const interval = setInterval(() => {
+      refreshIframe()
+    }, 10000) // Changed to 10 seconds
+    
+    setRefreshInterval(interval)
+    updateStatus('Auto-refresh started (10s)')
+  }
+
+  const stopAutoRefresh = () => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval)
+      setRefreshInterval(null)
+      updateStatus('Auto-refresh stopped')
+    }
+  }
+
+
+
+
+
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
-  // Send diagram XML to Draw.io when it changes
   useEffect(() => {
-    if (diagramXML && drawioRef.current) {
-      const iframe = drawioRef.current
-      iframe.contentWindow?.postMessage({
-        action: 'load',
-        xml: diagramXML
-      }, '*')
+    // Start auto-refresh when user reaches the second page (showChatHistory is true)
+    if (showChatHistory) {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
     }
-  }, [diagramXML])
+
+    // Cleanup on unmount
+    return () => {
+      stopAutoRefresh()
+    }
+  }, [showChatHistory])
+
+
+
+  const handleGoHome = () => {
+    setShowChatHistory(false)
+    setMessages([])
+    setUserPrompt('')
+  }
 
   const handleSendMessage = async () => {
     if (!userPrompt.trim() || isGenerating) return
@@ -72,7 +124,7 @@ export const LandingPage: React.FC = () => {
     // Simulate AI processing with hardcoded response
     setTimeout(() => {
       const aiResponse = getHardcodedResponse(userPrompt)
-      setDiagramXML(getHardcodedDiagram())
+      setCurrentDiagram(getHardcodedDiagram())
       
       setMessages(prev => prev.map(msg => 
         msg.id === thinkingMessage.id 
@@ -114,7 +166,7 @@ export const LandingPage: React.FC = () => {
 
     // Simulate codebase analysis
     setTimeout(() => {
-      setDiagramXML(getHardcodedDiagram())
+      setCurrentDiagram(getHardcodedDiagram())
       
       setMessages(prev => prev.map(msg => 
         msg.id === thinkingMessage.id 
@@ -234,32 +286,37 @@ export const LandingPage: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-950 via-slate-900 to-black">
+    <div className="h-screen flex bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(74,158,255,0.02)] to-transparent"></div>
       {/* Left Side - Chat History with Input (shown after first prompt) */}
       {showChatHistory && (
-        <div className="w-1/3 border-r border-white/20 bg-slate-900/60 backdrop-blur-sm flex flex-col">
+        <div className="w-[35%] bg-[#0f1419] flex flex-col relative z-10">
           {/* Chat Header */}
-          <div className="p-6 border-b border-white/20">
-            <h3 className="text-2xl font-bold tracking-tight">
+          <div className="p-6 border-b border-[rgba(255,255,255,0.1)]">
+            <h3 
+              className="text-2xl font-bold tracking-tight cursor-pointer hover:opacity-80 transition-opacity duration-200"
+              onClick={handleGoHome}
+            >
               <span className="text-white">Talk to </span>
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 via-purple-500 to-emerald-400 bg-clip-text text-transparent animate-gradient-shift">
+              <span className="bg-gradient-to-r from-[#4a9eff] via-[#6b73ff] to-[#4a9eff] bg-clip-text text-transparent">
                 Staicy
               </span>
             </h3>
           </div>
           
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 opacity-80 transition-opacity duration-300">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-4 rounded-lg border ${
+                  className={`max-w-[80%] p-4 rounded-xl border ${
                     message.type === 'user'
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/30'
-                      : 'bg-slate-800/60 text-white border-white/20 backdrop-blur-sm'
+                      ? 'bg-[#252a3a] text-white border-[rgba(255,255,255,0.1)]'
+                      : 'bg-[#1a1f2e] text-[#b8c2cc] border-[rgba(74,158,255,0.3)]'
                   }`}
                 >
                   {message.isGenerating ? (
@@ -282,12 +339,13 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Chat Input at bottom of left panel */}
-          <div className="border-t border-white/20 p-4">
-            <div className="flex items-center space-x-3">
+          <div className="p-6 border-t border-[rgba(255,255,255,0.1)]">
+            <div className="relative flex items-end gap-2 rounded-xl bg-[#1a1f2e] border border-[rgba(255,255,255,0.1)] px-4 py-3 focus-within:ring-2 focus-within:ring-[#4a9eff] focus-within:border-[#4a9eff] transition-all duration-200">
+              {/* Upload Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-slate-400 hover:text-cyan-400 border border-white/20 rounded-lg hover:bg-slate-800/40 transition-all duration-200"
-                title="Upload codebase files"
+                className="p-2 rounded-lg transition-all duration-200 bg-[#4a9eff] hover:bg-[#3a8eef] text-white shadow-sm hover:shadow-md"
+                title="Upload file"
               >
                 <Upload className="h-4 w-4" />
               </button>
@@ -300,22 +358,26 @@ export const LandingPage: React.FC = () => {
                 className="hidden"
               />
 
-              <div className="flex-1">
-                <textarea
-                  value={userPrompt}
-                  onChange={(e) => setUserPrompt(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Request modifications or ask questions..."
-                  className="w-full p-3 bg-slate-800/40 border border-white rounded-lg resize-none focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-400 text-sm transition-all duration-200"
-                  rows={2}
-                  disabled={isGenerating}
-                />
-              </div>
+              {/* Textarea */}
+              <textarea
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
+                onKeyDown={handleKeyPress}
+                rows={1}
+                placeholder="Request modifications or ask questions..."
+                className="flex-1 bg-transparent text-white placeholder-[#b8c2cc] resize-none focus:outline-none text-sm leading-tight max-h-36 overflow-y-auto py-2"
+                disabled={isGenerating}
+              />
 
+              {/* Send Button */}
               <button
                 onClick={handleSendMessage}
                 disabled={!userPrompt.trim() || isGenerating}
-                className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  userPrompt.trim()
+                    ? 'bg-[#4a9eff] hover:bg-[#3a8eef] text-white shadow-sm hover:shadow-md'
+                    : 'bg-[#252a3a] text-[#b8c2cc] cursor-not-allowed'
+                }`}
               >
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -325,7 +387,7 @@ export const LandingPage: React.FC = () => {
               </button>
             </div>
             
-            <div className="text-xs text-slate-400 mt-2 text-center">
+            <div className="text-xs text-[#b8c2cc] mt-3 text-center">
               Press Enter to send
             </div>
           </div>
@@ -371,7 +433,10 @@ export const LandingPage: React.FC = () => {
 
           {/* Content */}
           <div className="relative z-10 text-center w-full max-w-4xl mx-auto">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4 tracking-tight">
+            <h1 
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4 tracking-tight cursor-pointer hover:opacity-80 transition-opacity duration-200"
+              onClick={handleGoHome}
+            >
               <span className="text-white">Talk to </span>
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 via-purple-500 to-emerald-400 bg-clip-text text-transparent animate-gradient-shift">
                 Staicy
@@ -381,105 +446,86 @@ export const LandingPage: React.FC = () => {
               Turn Words into Workflows
             </p>
 
-            {/* Cursor-style Compact Chat Input */}
-            <div className="w-full max-w-4xl mx-auto">
-              <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl border border-white shadow-xl">
-                <div className="p-4">
-                  {/* Main Input Area */}
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1">
-                      <textarea
-                        value={userPrompt}
-                        onChange={(e) => setUserPrompt(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Create a database schema diagram for an e-commerce app with users, products, and orders"
-                        className="w-full p-4 bg-slate-800/40 border border-white rounded-lg resize-none focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-400 text-base transition-all duration-200"
-                        rows={2}
-                        disabled={isGenerating}
-                      />
-                    </div>
+{/* ChatGPT-style Input Bar */}
+<div className="relative flex items-end gap-2 rounded-xl bg-slate-800/60 backdrop-blur-sm px-3 py-2 focus-within:ring-1 focus-within:ring-cyan-400">
+  
+  {/* Upload Button */}
+  <button
+    onClick={() => fileInputRef.current?.click()}
+    className="p-2 rounded-md transition-colors bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white"
+    title="Upload file"
+  >
+    <Upload className="h-4 w-4" />
+  </button>
+  <input
+    ref={fileInputRef}
+    type="file"
+    multiple
+    onChange={handleFileUpload}
+    className="hidden"
+  />
 
-                    <button
-                      onClick={handleSendMessage}
-                      disabled={!userPrompt.trim() || isGenerating}
-                      className="px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Send className="h-5 w-5" />
-                      )}
-                    </button>
-                  </div>
+  {/* Textarea */}
+  <textarea
+    value={userPrompt}
+    onChange={(e) => setUserPrompt(e.target.value)}
+    onKeyDown={handleKeyPress}
+    rows={1}
+    placeholder="Create a database schema diagram for an e-commerce app with users, products, and orders"
+    className="flex-1 bg-transparent text-white placeholder-slate-400 resize-none focus:outline-none text-sm leading-tight max-h-36 overflow-y-auto py-2"
+    disabled={isGenerating}
+  />
 
-                  {/* Upload Section */}
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-700/30">
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center space-x-2 px-3 py-2 bg-slate-800/40 hover:bg-slate-700/40 border border-slate-600/30 rounded-md transition-all duration-200 group"
-                      title="Upload codebase files"
-                    >
-                      <Upload className="h-4 w-4 text-slate-400 group-hover:text-cyan-400" />
-                      <span className="text-slate-300 group-hover:text-white text-sm font-medium">Upload Codebase</span>
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    
-                    <div className="text-xs text-slate-500">
-                      Press Enter to send
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+  {/* Send Button */}
+  <button
+    onClick={handleSendMessage}
+    disabled={!userPrompt.trim() || isGenerating}
+    className={`p-2 rounded-md transition-colors ${
+      userPrompt.trim()
+        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white'
+        : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+    }`}
+  >
+    {isGenerating ? (
+      <Loader2 className="h-4 w-4 animate-spin" />
+    ) : (
+      <Send className="h-4 w-4" />
+    )}
+  </button>
+</div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Draw.io Panel (spans rest of screen) */}
       {showChatHistory && (
-        <div className="flex-1 border-l border-gray-200 bg-white flex flex-col">
-          {/* Diagram Header */}
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Diagram Preview</h3>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => {/* Download functionality */}}
-                  className="p-2 text-gray-500 hover:text-gray-700"
-                  title="Download diagram"
-                >
-                  <Download className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Draw.io Editor */}
-          <div className="flex-1">
-            {diagramXML ? (
-              <iframe
-                ref={drawioRef}
-                src="https://app.diagrams.net/?embed=1&ui=kennedy&spin=1&modified=unsavedChanges&proto=json&noSaveBtn=1&saveAndExit=0&lang=en"
-                className="w-full h-full border-0"
-                title="Draw.io Editor"
-                allow="clipboard-read; clipboard-write"
-              />
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                  <p className="text-lg font-medium">No diagram generated yet</p>
-                  <p className="text-sm">Start a conversation to see your diagram here</p>
-                </div>
-              </div>
-            )}
+        <div className="flex-1 bg-gradient-to-br from-[#0f1419] to-[#1a1f2e] relative -ml-12 shadow-2xl border border-[rgba(74,158,255,0.1)]">
+          {/* Subtle connecting line */}
+          <div className="absolute left-0 top-1/2 w-px h-32 bg-gradient-to-b from-transparent via-[#4a9eff] to-transparent opacity-30"></div>
+          
+          {/* Focal point glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(74,158,255,0.03)] to-transparent pointer-events-none"></div>
+          
+          {/* Draw.io Viewer Embed - Full Screen */}
+          <div className="w-full h-full relative">
+            <iframe
+              key={iframeKey}
+              frameborder="0"
+              style={{
+                width: '100%', 
+                height: '100%',
+                opacity: 1,
+                transition: 'opacity 0.3s ease-in-out'
+              }}
+              src="https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=hackyyyyy&dark=auto#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1oSfOF8VMs3rnyAB55YzOvlpkv6X6mUft%26export%3Ddownload"
+              title="Draw.io Viewer"
+              allow="clipboard-read; clipboard-write"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals allow-top-navigation"
+              onLoad={() => {
+                setIsRefreshing(false)
+                updateStatus('Diagram loaded')
+              }}
+            />
           </div>
         </div>
       )}
