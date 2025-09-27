@@ -130,7 +130,8 @@ export const LandingPage: React.FC = () => {
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
       handleSendMessage()
     }
   }
@@ -233,13 +234,18 @@ export const LandingPage: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="h-screen flex bg-gradient-to-br from-slate-950 via-slate-900 to-black">
       {/* Left Side - Chat History with Input (shown after first prompt) */}
       {showChatHistory && (
-        <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col">
+        <div className="w-1/3 border-r border-white/20 bg-slate-900/60 backdrop-blur-sm flex flex-col">
           {/* Chat Header */}
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Chat History</h3>
+          <div className="p-6 border-b border-white/20">
+            <h3 className="text-2xl font-bold tracking-tight">
+              <span className="text-white">Talk to </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 via-purple-500 to-emerald-400 bg-clip-text text-transparent animate-gradient-shift">
+                Staicy
+              </span>
+            </h3>
           </div>
           
           {/* Chat Messages */}
@@ -250,10 +256,10 @@ export const LandingPage: React.FC = () => {
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
+                  className={`max-w-[80%] p-4 rounded-lg border ${
                     message.type === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/30'
+                      : 'bg-slate-800/60 text-white border-white/20 backdrop-blur-sm'
                   }`}
                 >
                   {message.isGenerating ? (
@@ -264,10 +270,10 @@ export const LandingPage: React.FC = () => {
                   ) : (
                     <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                   )}
-                  <div className={`text-xs mt-1 ${
-                    message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
+                  <div className={`text-xs mt-2 ${
+                    message.type === 'user' ? 'text-cyan-100' : 'text-slate-400'
                   }`}>
-                    {message.timestamp.toLocaleTimeString()}
+                    {message.timestamp.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
                   </div>
                 </div>
               </div>
@@ -276,11 +282,11 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Chat Input at bottom of left panel */}
-          <div className="border-t border-gray-200 p-4">
-            <div className="flex items-end space-x-2">
+          <div className="border-t border-white/20 p-4">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-gray-500 hover:text-gray-700"
+                className="p-2 text-slate-400 hover:text-cyan-400 border border-white/20 rounded-lg hover:bg-slate-800/40 transition-all duration-200"
                 title="Upload codebase files"
               >
                 <Upload className="h-4 w-4" />
@@ -299,8 +305,8 @@ export const LandingPage: React.FC = () => {
                   value={userPrompt}
                   onChange={(e) => setUserPrompt(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Continue the conversation..."
-                  className="w-full p-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Request modifications or ask questions..."
+                  className="w-full p-3 bg-slate-800/40 border border-white rounded-lg resize-none focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-400 text-sm transition-all duration-200"
                   rows={2}
                   disabled={isGenerating}
                 />
@@ -309,7 +315,7 @@ export const LandingPage: React.FC = () => {
               <button
                 onClick={handleSendMessage}
                 disabled={!userPrompt.trim() || isGenerating}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md font-medium"
               >
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -319,83 +325,117 @@ export const LandingPage: React.FC = () => {
               </button>
             </div>
             
-            <div className="text-xs text-gray-500 mt-1">
-              Press Cmd/Ctrl + Enter to send
+            <div className="text-xs text-slate-400 mt-2 text-center">
+              Press Enter to send
             </div>
           </div>
         </div>
       )}
 
       {/* Center - Main Chat Area (only shown when no chat history) */}
-      <div className={`flex-1 flex flex-col ${showChatHistory ? 'hidden' : 'max-w-4xl mx-auto'}`}>
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Staicy</h1>
-            <div className="text-sm text-gray-500">
-              AI-Powered Documentation & Diagram Generation
+      <div className={`flex-1 flex flex-col ${showChatHistory ? 'hidden' : 'w-full'}`}>
+        {/* Enterprise Landing Page */}
+        <div className="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 relative overflow-hidden w-full">
+          {/* Cursor-style Minimalistic Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-black">
+            {/* Subtle Grid Pattern */}
+            <div className="absolute inset-0 opacity-3">
+              {/* Vertical Grid Lines */}
+              <div className="absolute left-1/3 top-0 bottom-0 w-px bg-slate-700/20"></div>
+              <div className="absolute left-2/3 top-0 bottom-0 w-px bg-slate-700/20"></div>
+              
+              {/* Horizontal Grid Lines */}
+              <div className="absolute top-1/3 left-0 right-0 h-px bg-slate-700/15"></div>
+              <div className="absolute top-2/3 left-0 right-0 h-px bg-slate-700/15"></div>
+            </div>
+            
+            {/* Dot Matrix Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute top-1/4 left-1/4 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-1/4 left-1/2 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-1/4 left-3/4 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-1/2 left-1/4 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-1/2 left-3/4 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-3/4 left-1/4 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-3/4 left-1/2 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+              <div className="absolute top-3/4 left-3/4 w-0.5 h-0.5 bg-slate-600 rounded-full"></div>
+            </div>
+            
+            {/* Subtle Glow Effects */}
+            <div className="absolute inset-0 opacity-8">
+              <div className="absolute top-1/3 left-1/3 w-1 h-1 bg-cyan-400/20 rounded-full blur-sm"></div>
+              <div className="absolute top-2/3 left-2/3 w-1 h-1 bg-blue-400/15 rounded-full blur-sm"></div>
             </div>
           </div>
-        </div>
 
-        {/* Main Content - Only shown when no chat history */}
-        <div className="flex-1 flex flex-col justify-center items-center px-6">
-          <div className="w-full max-w-2xl">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Welcome to Staicy
-              </h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Describe what you want to build or upload your codebase, and I'll generate documentation and diagrams for you.
-              </p>
-            </div>
+          {/* Content */}
+          <div className="relative z-10 text-center w-full max-w-4xl mx-auto">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4 tracking-tight">
+              <span className="text-white">Talk to </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-500 via-purple-500 to-emerald-400 bg-clip-text text-transparent animate-gradient-shift">
+                Staicy
+              </span>
+            </h1>
+            <p className="text-2xl sm:text-3xl text-white/90 mb-16 font-light max-w-2xl mx-auto">
+              Turn Words into Workflows
+            </p>
 
-            {/* Large Chat Input */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="flex items-end space-x-3">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-3 text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  title="Upload codebase files"
-                >
-                  <Upload className="h-6 w-6" />
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+            {/* Cursor-style Compact Chat Input */}
+            <div className="w-full max-w-4xl mx-auto">
+              <div className="bg-slate-900/60 backdrop-blur-sm rounded-xl border border-white shadow-xl">
+                <div className="p-4">
+                  {/* Main Input Area */}
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1">
+                      <textarea
+                        value={userPrompt}
+                        onChange={(e) => setUserPrompt(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Create a database schema diagram for an e-commerce app with users, products, and orders"
+                        className="w-full p-4 bg-slate-800/40 border border-white rounded-lg resize-none focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 text-white placeholder-slate-400 text-base transition-all duration-200"
+                        rows={2}
+                        disabled={isGenerating}
+                      />
+                    </div>
 
-                <div className="flex-1">
-                  <textarea
-                    value={userPrompt}
-                    onChange={(e) => setUserPrompt(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Describe what you want to build... (e.g., 'Create a user authentication system' or 'Design a REST API architecture')"
-                    className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                    rows={4}
-                    disabled={isGenerating}
-                  />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!userPrompt.trim() || isGenerating}
+                      className="px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-400 hover:to-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Send className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Upload Section */}
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-700/30">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center space-x-2 px-3 py-2 bg-slate-800/40 hover:bg-slate-700/40 border border-slate-600/30 rounded-md transition-all duration-200 group"
+                      title="Upload codebase files"
+                    >
+                      <Upload className="h-4 w-4 text-slate-400 group-hover:text-cyan-400" />
+                      <span className="text-slate-300 group-hover:text-white text-sm font-medium">Upload Codebase</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    
+                    <div className="text-xs text-slate-500">
+                      Press Enter to send
+                    </div>
+                  </div>
                 </div>
-
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!userPrompt.trim() || isGenerating}
-                  className="px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Send className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-              
-              <div className="text-sm text-gray-500 mt-3 text-center">
-                Press Cmd/Ctrl + Enter to send • Upload code files for automatic analysis
               </div>
             </div>
           </div>
