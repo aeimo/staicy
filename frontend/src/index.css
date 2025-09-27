@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mermaid Diagram Styling */
+.mermaid {
+  @apply text-center;
+}
+
+.mermaid-container {
+  @apply bg-slate-800;
+}
+
+.mermaid svg {
+  @apply max-w-full h-auto;
+}
+
+/* Dark theme for Mermaid diagrams */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+  @apply fill-slate-700 stroke-slate-300;
+}
+
+.mermaid .edgePath .path {
+  @apply stroke-slate-400;
+}
+
+.mermaid .edgeLabel {
+  @apply fill-slate-200;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
