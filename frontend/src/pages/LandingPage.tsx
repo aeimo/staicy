@@ -234,7 +234,7 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="h-screen flex bg-gray-50">
-      {/* Left Side - Chat History (shown after first prompt) */}
+      {/* Left Side - Chat History with Input (shown after first prompt) */}
       {showChatHistory && (
         <div className="w-1/3 border-r border-gray-200 bg-white flex flex-col">
           {/* Chat Header */}
@@ -274,11 +274,60 @@ export const LandingPage: React.FC = () => {
             ))}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Chat Input at bottom of left panel */}
+          <div className="border-t border-gray-200 p-4">
+            <div className="flex items-end space-x-2">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-gray-500 hover:text-gray-700"
+                title="Upload codebase files"
+              >
+                <Upload className="h-4 w-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+
+              <div className="flex-1">
+                <textarea
+                  value={userPrompt}
+                  onChange={(e) => setUserPrompt(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Continue the conversation..."
+                  className="w-full p-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  rows={2}
+                  disabled={isGenerating}
+                />
+              </div>
+
+              <button
+                onClick={handleSendMessage}
+                disabled={!userPrompt.trim() || isGenerating}
+                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            
+            <div className="text-xs text-gray-500 mt-1">
+              Press Cmd/Ctrl + Enter to send
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Center - Main Chat Area */}
-      <div className={`flex-1 flex flex-col ${showChatHistory ? '' : 'max-w-4xl mx-auto'}`}>
+      {/* Center - Main Chat Area (only shown when no chat history) */}
+      <div className={`flex-1 flex flex-col ${showChatHistory ? 'hidden' : 'max-w-4xl mx-auto'}`}>
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
@@ -289,163 +338,111 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content - Only shown when no chat history */}
         <div className="flex-1 flex flex-col justify-center items-center px-6">
-          {messages.length === 0 ? (
-            /* Initial State - Large Chat Interface */
-            <div className="w-full max-w-2xl">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Welcome to Staicy
-                </h2>
-                <p className="text-lg text-gray-600 mb-8">
-                  Describe what you want to build or upload your codebase, and I'll generate documentation and diagrams for you.
-                </p>
-              </div>
-
-              {/* Large Chat Input */}
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex items-end space-x-3">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-3 text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Upload codebase files"
-                  >
-                    <Upload className="h-6 w-6" />
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-
-                  <div className="flex-1">
-                    <textarea
-                      value={userPrompt}
-                      onChange={(e) => setUserPrompt(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Describe what you want to build... (e.g., 'Create a user authentication system' or 'Design a REST API architecture')"
-                      className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                      rows={4}
-                      disabled={isGenerating}
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!userPrompt.trim() || isGenerating}
-                    className="px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <Send className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-                
-                <div className="text-sm text-gray-500 mt-3 text-center">
-                  Press Cmd/Ctrl + Enter to send • Upload code files for automatic analysis
-                </div>
-              </div>
+          <div className="w-full max-w-2xl">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                Welcome to Staicy
+              </h2>
+              <p className="text-lg text-gray-600 mb-8">
+                Describe what you want to build or upload your codebase, and I'll generate documentation and diagrams for you.
+              </p>
             </div>
-          ) : (
-            /* Chat Interface After First Message */
-            <div className="w-full max-w-2xl">
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex items-end space-x-3">
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-2 text-gray-500 hover:text-gray-700"
-                    title="Upload codebase files"
-                  >
-                    <Upload className="h-5 w-5" />
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
-                    onChange={handleFileUpload}
-                    className="hidden"
+
+            {/* Large Chat Input */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <div className="flex items-end space-x-3">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-3 text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  title="Upload codebase files"
+                >
+                  <Upload className="h-6 w-6" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.h,.cs,.php,.rb,.go,.rs,.swift,.kt,.scala,.clj,.hs,.ml,.fs,.vb,.sql,.html,.css,.scss,.less,.xml,.json,.yaml,.yml,.md,.txt"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+
+                <div className="flex-1">
+                  <textarea
+                    value={userPrompt}
+                    onChange={(e) => setUserPrompt(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Describe what you want to build... (e.g., 'Create a user authentication system' or 'Design a REST API architecture')"
+                    className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                    rows={4}
+                    disabled={isGenerating}
                   />
-
-                  <div className="flex-1">
-                    <textarea
-                      value={userPrompt}
-                      onChange={(e) => setUserPrompt(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Continue the conversation..."
-                      className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows={2}
-                      disabled={isGenerating}
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!userPrompt.trim() || isGenerating}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </button>
                 </div>
-                
-                <div className="text-xs text-gray-500 mt-2">
-                  Press Cmd/Ctrl + Enter to send
-                </div>
+
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!userPrompt.trim() || isGenerating}
+                  className="px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isGenerating ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
+                </button>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right Side - Draw.io Panel */}
-      <div className="w-1/3 border-l border-gray-200 bg-white flex flex-col">
-        {/* Diagram Header */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Diagram Preview</h3>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => {/* Download functionality */}}
-                className="p-2 text-gray-500 hover:text-gray-700"
-                title="Download diagram"
-              >
-                <Download className="h-4 w-4" />
-              </button>
+              
+              <div className="text-sm text-gray-500 mt-3 text-center">
+                Press Cmd/Ctrl + Enter to send • Upload code files for automatic analysis
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Draw.io Editor */}
-        <div className="flex-1">
-          {diagramXML ? (
-            <iframe
-              ref={drawioRef}
-              src="https://app.diagrams.net/?embed=1&ui=kennedy&spin=1&modified=unsavedChanges&proto=json&noSaveBtn=1&saveAndExit=0&lang=en"
-              className="w-full h-full border-0"
-              title="Draw.io Editor"
-              allow="clipboard-read; clipboard-write"
-            />
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              <div className="text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-lg font-medium">No diagram generated yet</p>
-                <p className="text-sm">Start a conversation to see your diagram here</p>
+      {/* Right Side - Draw.io Panel (spans rest of screen) */}
+      {showChatHistory && (
+        <div className="flex-1 border-l border-gray-200 bg-white flex flex-col">
+          {/* Diagram Header */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Diagram Preview</h3>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => {/* Download functionality */}}
+                  className="p-2 text-gray-500 hover:text-gray-700"
+                  title="Download diagram"
+                >
+                  <Download className="h-4 w-4" />
+                </button>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Draw.io Editor */}
+          <div className="flex-1">
+            {diagramXML ? (
+              <iframe
+                ref={drawioRef}
+                src="https://app.diagrams.net/?embed=1&ui=kennedy&spin=1&modified=unsavedChanges&proto=json&noSaveBtn=1&saveAndExit=0&lang=en"
+                className="w-full h-full border-0"
+                title="Draw.io Editor"
+                allow="clipboard-read; clipboard-write"
+              />
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <p className="text-lg font-medium">No diagram generated yet</p>
+                  <p className="text-sm">Start a conversation to see your diagram here</p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
