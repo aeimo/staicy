@@ -20,7 +20,7 @@ drawio_promts:
   prompt: |
     Given the following codebase or text description of a codebase, create a drawio xml file that accurately represents the structure and relationships within the codebase. Ensure that the diagram is clear, well-organized, and adheres to the provided style guidelines.
 
-    Codebase/Description:
+    Codebase Files:
     {{CODEBASEFILESUSERINPUT}}
 
     Remember to focus on accuracy and clarity in your diagram. Do not include any explanations or additional text; simply return the drawio xml file.
