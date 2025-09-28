@@ -21,15 +21,17 @@ An AI-powered documentation platform that helps teams capture knowledge, generat
 ## Directions for how to Configure and Use
 1) Clone the repository `git clone https://github.com/aeimo/staicy.git`
 2) Install dependencies
-```bash
+```
+cd staicy
 # Install root dependencies
 npm install
+npm install --save-dev @types/node
 
 # Install backend dependencies
 cd backend
 npm install
 
-# Install frontend dependencies
+# Install frontend dependencies:
 cd ../frontend
 npm install
 ```
@@ -44,25 +46,25 @@ a) Go to this link: https://console.cloud.google.com/apis/credentials
 Open the project picker and create a new project called Staicy
 ![Alt text](images/my-image1.png)
 ![Alt text](images/my-image2.png)
-![Alt text](images/my-image3.png)
 b) Create new credentials: Click Create Credentials → OAuth client ID.
-![Alt text](images/my-image4.png)
+![Alt text](images/my-image3.png)
 c) It might prompt you to configure consent screen. Click Configure Consent Screen and then Click Get Started
+![Alt text](images/my-image4.png)
 ![Alt text](images/my-image5.png)
 d) Type Staicy for App name and enter your email address for User support email. Then click External for audience. Enter your email address again where it says Contact Information. Then click Finish, continue, and create.
 ![Alt text](images/my-image6.png)
-5) Finish setting up your Oauth Client Id. Click Clients, then Create Client
+6) Finish setting up your Oauth Client Id. Click Clients, then Create Client
 ![Alt text](images/my-image7.png)
-a) Enter Web Application for Application Type and then WebClient1 for Name. Add an authorized redirect URI. Enter http://localhost. Click create
+a) Enter Web Application for Application Type and then WebClient1 for Name. Under Authorized redirect URIs. Click Add URI and enter http://localhost. Click create
 7) From the pop-up click Download JSON.
 ![Alt text](images/my-image8.png)
-8) Rename this json credentials.json and save it in backend/src/. Delete the `{"web":` at the start of the file if it is there and the extra closing `}` if it is there.
+8) Rename this json to credentials.json and save it in backend/src/. Delete the `{"web":` at the start of the file if it is there and the extra closing `}` if it is there.
 9) Go back to the pop-up and click ok. Then click Audience and then click Add users under Test users. Enter your same email address again. Hit enter and then click save.
 ![Alt text](images/my-image9.png)
-9) Run `npm install googleapis` then `npx ts-node src/getDriveToken.ts`
-10) In the terminal log. Click the link, then login with your same gmail address again. Then click continue and continue. You will reach a site that can't be reached. Copy the Url. `http://localhost/?code=YOURCODEHERE&scope=https://www.googleapis.com/auth/drive.file`. Copy the value between the `=` and the `&` where it says YOURCODEHERE in the example shown. That is your code. Enter that value in the command line and hit enter. This will create token.json in backend/src.
-11) run `npx ts-node src/server.ts`. You will get a long error message. Near the end of the message it will say. `message: 'Google Drive API has not been used in project 456478292515 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project=456478292515 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.'` Click the link in that part of the error message. Then click enable.
-12) run `npx ts-node src/getDriveToken.ts` again. In the console output shown below click the link next to open in draw.io. Then click Try Opening in this Page.
+9) From the backend directory, Run `npm install googleapis` then `npx ts-node src/getDriveToken.ts`. This will produce some terminal output.
+10) In the terminal log, click the link that is given, then login with your same gmail address again. Then click continue and continue. You will reach a site that can't be reached. From that url which will look like: `http://localhost/?code=YOURCODEHERE&scope=https://www.googleapis.com/auth/drive.file`, copy the code written after code  between the `=` and the `&` where it says YOURCODEHERE in the example shown. That is your code. Enter that value in the command line after it says `Enter authorization code:` and hit enter. This will create token.json in backend/src.
+11) Run `npx ts-node src/server.ts`. You will get a long error message. Near the end of the message it will say. `message: 'Google Drive API has not been used in project 456478292515 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project=456478292515 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.'` Click the link in that part of the error message. Then click enable.
+12) run `npx ts-node src/getDriveToken.ts` again. In the console output like the one shown below, click the link next to open in draw.io. Then log in with your same gmail, and after it loads, click Try Opening in this Page.
 ```
 Server running on http://localhost:5001
 ✅ Created new diagram with ID: 1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
