@@ -1,3 +1,6 @@
+import * as path from "path";
+import * as fs from "fs";
+
 export interface LLMClient {
     query(prompt: string, system_prompt: string): Promise<string>;
 }
@@ -10,13 +13,17 @@ export interface GeminiResponse {
   }[];
 }
 
+const CREDENTIALS_PATH = path.join(__dirname, "credentials.json");
+const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf-8"));
+
 // Gemini Agent Implementation 
 export class GeminiAgent implements LLMClient {
     private apiKey: string;
     private model: string = 'gemini-2.5-flash';
     private history: { role: string, parts: { text: string }[] }[] = [];
+    
 
-    constructor(apiKey: string = 'AIzaSyBKjeruXQ85TcEKr4zluHfKhgPPQ7-gl9w') {
+    constructor(apiKey: string = credentials.apiKey) {
         this.apiKey = apiKey;
     }
     
