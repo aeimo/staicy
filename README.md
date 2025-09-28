@@ -51,7 +51,7 @@ b) Create new credentials: Click Create Credentials → OAuth client ID.
 c) It might prompt you to configure consent screen. Click Configure Consent Screen and then Click Get Started
 ![Alt text](images/my-image4.png)
 ![Alt text](images/my-image5.png)
-d) Type Staicy for App name and enter your email address for User support email. Then click External for audience. Enter your email address again where it says Contact Information. Then click Finish, continue, and create.
+d) Type Staicy for App name and enter your email address for User support email. Then click External for audience. Enter your email address again where it says Contact Information. Then click I agree, continue, and create.
 ![Alt text](images/my-image6.png)
 6) Finish setting up your Oauth Client Id. Click Clients, then Create Client
 ![Alt text](images/my-image7.png)
@@ -64,7 +64,7 @@ a) Enter Web Application for Application Type and then WebClient1 for Name. Unde
 9) From the backend directory, Run `npm install googleapis` then `npx ts-node src/getDriveToken.ts`. This will produce some terminal output.
 10) In the terminal log, click the link that is given, then login with your same gmail address again. Then click continue and continue. You will reach a site that can't be reached. From that url which will look like: `http://localhost/?code=YOURCODEHERE&scope=https://www.googleapis.com/auth/drive.file`, copy the code written after code  between the `=` and the `&` where it says YOURCODEHERE in the example shown. That is your code. Enter that value in the command line after it says `Enter authorization code:` and hit enter. This will create token.json in backend/src.
 11) Run `npx ts-node src/server.ts`. You will get a long error message. Near the end of the message it will say. `message: 'Google Drive API has not been used in project 456478292515 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project=456478292515 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.'` Click the link in that part of the error message. Then click enable.
-12) run `npx ts-node src/getDriveToken.ts` again. In the console output like the one shown below, click the link next to open in draw.io. Then log in with your same gmail, and after it loads, click Try Opening in this Page.
+12) run `npx ts-node src/server.ts` again. In the console output like the one shown below, click the link next to open in draw.io. Then log in with your same gmail if needed, and after it loads, click Try Opening in this Page.
 ```
 Server running on http://localhost:5001
 ✅ Created new diagram with ID: 1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
@@ -72,7 +72,7 @@ Server running on http://localhost:5001
 🔗 Open in draw.io: https://app.diagrams.net/?mode=google&fileId=1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
 ```
 ![Alt text](images/my-image10.png)
-13) Click open with draw.io. Then click File -> Embed -> IFrame. Leave the default settings and click create. Copy the link within the iframe after src=". Then close that pop-up window.
+13) Click open with draw.io. Then click File -> Embed -> IFrame. Leave the default settings and click create. Copy the link within the iframe where it says src="LongLinkHere". Then close that pop-up window.
 14) In staicy/frontend/src/pages open LandingPage.tsx. Scroll to line 478 and enter this link where it says src="ENTER_YOUR_OWN_DRAWIO_EMBED_URL_HERE".
 15) Now the repository links a drawing directly to your google drive.
 
