@@ -96,6 +96,8 @@ drawio_prompts:
     3. Maintain a clean layout with minimal overlapping lines and elements.
     4. Use arrows to indicate relationships and interactions between components.
     5. Group related elements together to enhance clarity.
+    6. Try to avoid overlapping lines and elements as much as possible.
+    7. Make the diagram visually appealing and impressibe looking, but also easy to understand at a glance.
     
   prompt: |
     Given the following codebase or text description of a codebase, create a drawio xml file that accurately represents the structure and relationships within the codebase. Ensure that the diagram is clear, well-organized, and adheres to the provided style guidelines.
