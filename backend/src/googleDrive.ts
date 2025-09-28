@@ -1,8 +1,8 @@
 import * as fs from "fs";
 import { google } from "googleapis";
-const path = require("path");
 import { OAuth2Client } from "google-auth-library";
-
+import * as path from "path";
+import { Readable } from "stream";
 // -------------------------------------------------
 // CONFIG
 // -------------------------------------------------
@@ -10,7 +10,6 @@ const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const CREDENTIALS_PATH = path.join(__dirname, "credentials.json"); // Download from Google Cloud Console
 const TOKEN_PATH = "token.json"; // Stores OAuth token so you don’t log in every time
 const FILE_NAME = "diagram.drawio"; // Name for the new diagram file
-
 // -------------------------------------------------
 // AUTHENTICATION
 // -------------------------------------------------
@@ -42,17 +41,16 @@ async function authorize(): Promise<OAuth2Client> {
 async function createDiagram(xml: string): Promise<void> {
   const auth = await authorize();
   const drive = google.drive({ version: "v3", auth });
-console.log("xml:", xml);
+
   const fileMetadata = {
     name: FILE_NAME,
     mimeType: "application/vnd.jgraph.mxfile",
   };
 
-  const media = {
-    mimeType: "application/vnd.jgraph.mxfile",
-    body: fs.createReadStream("diagram.drawio"),
-  };
-
+const media = {
+  mimeType: "application/vnd.jgraph.mxfile",
+  body: Readable.from([xml]), // Wrap XML string in a readable stream
+};
 
   const response = await drive.files.create({
     requestBody: fileMetadata,
@@ -67,14 +65,18 @@ console.log("xml:", xml);
 // RUN
 // -------------------------------------------------
 if (require.main === module) {
-  const xml = `<mxfile version="1.0">
-  <diagram id="sample" name="Page-1">
+  const dummyXml = `<?xml version="1.0" encoding="UTF-8"?>
+<mxfile version="1.0">
+  <diagram id="dummy" name="Page-1">
     <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
-      <root></root>
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+      </root>
     </mxGraphModel>
   </diagram>
 </mxfile>`;
-  createDiagram(xml).catch(console.error);
+  createDiagram(dummyXml).catch(console.error);
 }
 
 export { createDiagram };
