@@ -6,9 +6,8 @@ drawio_promts:
     **Important**: Only return the xml file, do not include any explanations or additional text.
 
     **Example xml file output**:
+   
       
-
-
   style_guide: |
     When creating drawio diagrams, follow these style guidelines:
     1. Use consistent shapes and colors for similar elements (e.g., classes, interfaces, methods).
