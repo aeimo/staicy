@@ -38,6 +38,7 @@ npm install
 {
   "apiKey" : "YOUR API KEY HERE"
 }
+```
 4) Setup Google Oauth
 a) Click this link: https://console.cloud.google.com/apis/credentials
 Open the project picker and create a new project called Staicy
