@@ -8,7 +8,8 @@ import { Readable } from "stream";
 // -------------------------------------------------
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const CREDENTIALS_PATH = path.join(__dirname, "credentials.json"); // Download from Google Cloud Console
-const TOKEN_PATH = "token.json"; // Stores OAuth token so you don’t log in every time
+const TOKEN_PATH = path.join(__dirname, "token.json");
+
 const FILE_NAME = "diagram.drawio"; // Name for the new diagram file
 // -------------------------------------------------
 // AUTHENTICATION
