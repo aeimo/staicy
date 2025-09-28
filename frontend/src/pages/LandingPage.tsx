@@ -38,55 +38,55 @@ export const LandingPage: React.FC = () => {
     }
   }
 
-  const refreshIframe = () => {
-    setIsRefreshing(true)
-    setIframeKey(prev => prev + 1)
-    updateStatus('Refreshing diagram...')
+   const refreshIframe = () => {
+     setIsRefreshing(true)
+     setIframeKey(prev => prev + 1)
+     updateStatus('Refreshing diagram...')
   }
 
-  const startAutoRefresh = () => {
-    if (refreshInterval) {
-      clearInterval(refreshInterval)
-    }
+  // const startAutoRefresh = () => {
+  //   if (refreshInterval) {
+  //     clearInterval(refreshInterval)
+  //   }
     
-    const interval = setInterval(() => {
-      refreshIframe()
-    }, 10000) // Changed to 10 seconds
+  //   const interval = setInterval(() => {
+  //     refreshIframe()
+  //   }, 10000) // Changed to 10 seconds
     
-    setRefreshInterval(interval)
-    updateStatus('Auto-refresh started (10s)')
-  }
+  //   setRefreshInterval(interval)
+  //   updateStatus('Auto-refresh started (10s)')
+  // }
 
-  const stopAutoRefresh = () => {
-    if (refreshInterval) {
-      clearInterval(refreshInterval)
-      setRefreshInterval(null)
-      updateStatus('Auto-refresh stopped')
-    }
-  }
-
-
+  // const stopAutoRefresh = () => {
+  //   if (refreshInterval) {
+  //     clearInterval(refreshInterval)
+  //     setRefreshInterval(null)
+  //     updateStatus('Auto-refresh stopped')
+  //   }
+  // }
 
 
 
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
 
-  useEffect(() => {
-    // Start auto-refresh when user reaches the second page (showChatHistory is true)
-    if (showChatHistory) {
-      startAutoRefresh()
-    } else {
-      stopAutoRefresh()
-    }
 
-    // Cleanup on unmount
-    return () => {
-      stopAutoRefresh()
-    }
-  }, [showChatHistory])
+  // useEffect(() => {
+  //   scrollToBottom()
+  // }, [messages])
+
+  // useEffect(() => {
+  //   // Start auto-refresh when user reaches the second page (showChatHistory is true)
+  //   if (showChatHistory) {
+  //     startAutoRefresh()
+  //   } else {
+  //     stopAutoRefresh()
+  //   }
+
+  //   // Cleanup on unmount
+  //   return () => {
+  //     stopAutoRefresh()
+  //   }
+  // }, [showChatHistory])
 
 
 
@@ -96,7 +96,7 @@ export const LandingPage: React.FC = () => {
     setUserPrompt('')
   }
 
-  const handleSendMessage = async () => {
+    const handleSendMessage = async () => {
  if (!userPrompt.trim() || isGenerating) return;
 
 
@@ -152,53 +152,72 @@ export const LandingPage: React.FC = () => {
      )
    );
  } finally {
+    refreshIframe()
    setIsGenerating(false);
  }
 };
 
+const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const files = Array.from(event.target.files || []);
+  if (files.length === 0) return;
 
+  if (isGenerating) return;
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    if (files.length === 0) return
+  const filePrompt = `Analyze these ${files.length} uploaded file(s): ${files.map(f => f.name).join(', ')} and generate a draw.io diagram XML.`;
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: `Uploaded ${files.length} file(s): ${files.map(f => f.name).join(', ')}`,
-      timestamp: new Date()
-    }
+  const userMessage: ChatMessage = {
+    id: Date.now().toString(),
+    type: "user",
+    content: filePrompt,
+    timestamp: new Date(),
+  };
 
-    setMessages(prev => [...prev, userMessage])
-    setIsGenerating(true)
-    setShowChatHistory(true)
+  setMessages(prev => [...prev, userMessage]);
+  setIsGenerating(true);
+  setShowChatHistory(true);
 
-    // Add AI thinking message
-    const thinkingMessage: ChatMessage = {
-      id: (Date.now() + 1).toString(),
-      type: 'ai',
-      content: '',
-      timestamp: new Date(),
-      isGenerating: true
-    }
-    setMessages(prev => [...prev, thinkingMessage])
+  // Add AI thinking message
+  const thinkingMessage: ChatMessage = {
+    id: (Date.now() + 1).toString(),
+    type: "ai",
+    content: "",
+    timestamp: new Date(),
+    isGenerating: true,
+  };
 
-    // Simulate codebase analysis
-    setTimeout(() => {
-      setCurrentDiagram(getHardcodedDiagram())
-      
-      setMessages(prev => prev.map(msg => 
-        msg.id === thinkingMessage.id 
-          ? {
-              ...msg,
-              content: `I've analyzed your codebase and generated an architecture diagram. The diagram shows the system structure with components, relationships, and data flow.`,
-              isGenerating: false
-            }
+  setMessages(prev => [...prev, thinkingMessage]);
+
+  try {
+    const response = await fetch('http://localhost:5001/api/message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt: filePrompt }),
+    });
+
+    const data = await response.json();
+
+    setMessages(prev =>
+      prev.map(msg =>
+        msg.id === thinkingMessage.id
+          ? { ...msg, content: data.content, isGenerating: false }
           : msg
-      ))
-      setIsGenerating(false)
-    }, 3000)
+      )
+    );
+  } catch (error) {
+    setMessages(prev =>
+      prev.map(msg =>
+        msg.id === thinkingMessage.id
+          ? { ...msg, content: 'Error connecting to server.', isGenerating: false }
+          : msg
+      )
+    );
+  } finally {
+    refreshIframe();
+    setIsGenerating(false);
   }
+};
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

@@ -53,8 +53,8 @@ app.post('/api/message', async (req, res) => {
     if (!xml) {
       throw new Error("No XML found in the agent's response.");
     }
-
-    driverManager.updateDiagram(xml);
+    
+    await driverManager.updateDiagram(xml);
 
 
 
