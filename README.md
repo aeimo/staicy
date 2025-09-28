@@ -18,6 +18,64 @@ An AI-powered documentation platform that helps teams capture knowledge, generat
 - **Diagram Generation**: Create visual diagrams from text descriptions
 - **Content Optimization**: Ability to collaborate and discuss changes to diagrams with LLM
 
+## Directions for how to Configure and Use
+1) Clone the repository `git clone https://github.com/aeimo/staicy.git`
+2) Install dependencies
+```bash
+# Install root dependencies
+npm install
+
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+```
+3) cd ../backend/utils and create gemini.json like below (staicy/backend/utils/gemini.json)
+```
+{
+  "apiKey" : "YOUR API KEY HERE"
+}
+4) Setup Google Oauth
+a) Click this link: https://console.cloud.google.com/apis/credentials
+Open the project picker and create a new project called Staicy
+![Alt text](images/my-image1.png)
+![Alt text](images/my-image2.png)
+![Alt text](images/my-image3.png)
+b) Create new credentials: Click Create Credentials → OAuth client ID.
+![Alt text](images/my-image4.png)
+c) It might prompt you to configure consent screen. Click Configure Consent Screen and then Click Get Started
+![Alt text] (images/my-image5.png)
+d) Type Staicy for App name and enter your email address for User support email. Then click External for audience. Enter your email address again where it says Contact Information. Then click Finish, continue, and create.
+![Alt text] (images/my-image6.png)
+5) Finish setting up your Oauth Client Id. Click Clients, then Create Client
+![Alt text] (images/my-image6.png)
+a) Enter Web Application for Application Type and then WebClient1 for Name. Add an authorized redirect URI. Enter http://localhost. Click create
+7) From the pop-up click Download JSON.
+![Alt text] (images/my-image6.png)
+8) Rename this json credentials.json and save it in backend/src/. Delete the `{"web":` at the start of the file if it is there and the extra closing `}` if it is there.
+9) Go back to the pop-up and click ok. Then click Audience and then click Add users under Test users. Enter your same email address again. Hit enter and then click save.
+![Alt text] (images/my-image6.png)
+9) Run `npm install googleapis` then `npx ts-node src/getDriveToken.ts`
+10) In the terminal log. Click the link, then login with your same gmail address again. Then click continue and continue. You will reach a site that can't be reached. Copy the Url. `http://localhost/?code=YOURCODEHERE&scope=https://www.googleapis.com/auth/drive.file`. Copy the value between the `=` and the `&` where it says YOURCODEHERE in the example shown. That is your code. Enter that value in the command line and hit enter. This will create token.json in backend/src.
+11) run `npx ts-node src/server.ts`. You will get a long error message. Near the end of the message it will say. `message: 'Google Drive API has not been used in project 456478292515 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project=456478292515 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.'` Click the link in that part of the error message. Then click enable.
+12) run `npx ts-node src/getDriveToken.ts` again. In the console output shown below click the link next to open in draw.io. Then click Try Opening in this Page.
+```
+Server running on http://localhost:5001
+✅ Created new diagram with ID: 1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
+📄 Diagram updated on Drive (ID: 1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB)
+🔗 Open in draw.io: https://app.diagrams.net/?mode=google&fileId=1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
+```
+![Alt text] (images/my-image6.png)
+13) Click open with draw.io. Then click File -> Embed -> IFrame. Leave the default settings and click create. Copy the link within the iframe after src=". Then close that pop-up window.
+14) In staicy/frontend/src/pages open LandingPage.tsx. Scroll to line 478 and enter this link where it says src="Enter Your Link Here".
+15) Now the repository links a drawing directly to your google drive.
+
+
+
+
 ## 🏗️ Architecture
 
 ### Backend (Node.js/Express + TypeScript)
