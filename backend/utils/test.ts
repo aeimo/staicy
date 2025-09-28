@@ -1,15 +1,25 @@
+import googleDrive = require("../src/googleDrive");
 import { GeminiAgent } from "./openAIAgent";
+import { PromptBuilder } from "./promptBuilder";
 
 async function main() {
     const agent = new GeminiAgent();
-    const prompt = "Generate a simple diagram of a web application architecture with a client, server, and database.";
+    const Pb = new PromptBuilder();
+    console.log(Pb.getPrompts());
+    const system_prompt = Pb.getSystemPrompt();
+    const style_guide = Pb.getStyleGuide();
+    const additional_context = "Make a random XML. I have not given any files. Make sure the XML is valid. It has to load properly in draw.io.";
+    const prompt = Pb.buildInitialPrompt([], additional_context);
+    let response: string;
     try {
-        const response = await agent.query(prompt, "You are a helpful assistant that generates diagrams in XML format.");
+        response = await agent.query(prompt, system_prompt, style_guide);
         console.log("Response from GeminiAgent: ");
         console.log(response);
     } catch (error) {
         console.error("Error querying GeminiAgent:", error);
+        response = "";
     }
+    googleDrive.updateDiagram(response);
 }
 
 main();

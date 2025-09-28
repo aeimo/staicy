@@ -1,28 +1,24 @@
-import fs from "fs";
-import readline from "readline";
+import * as fs from "fs";
 import { google } from "googleapis";
+const path = require("path");
 import { OAuth2Client } from "google-auth-library";
 
 // -------------------------------------------------
 // CONFIG
 // -------------------------------------------------
-const FILE_ID = "1oSfOF8VMs3rnyAB55YzOvlpkv6X6mUft"; // Your Google Drive file ID
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
-const CREDENTIALS_PATH = "credentials.json"; // Download from Google Cloud Console
+const CREDENTIALS_PATH = path.join(__dirname, "credentials.json"); // Download from Google Cloud Console
 const TOKEN_PATH = "token.json"; // Stores OAuth token so you don’t log in every time
+const FILE_NAME = "diagram.drawio"; // Name for the new diagram file
 
 // -------------------------------------------------
 // AUTHENTICATION
 // -------------------------------------------------
 async function authorize(): Promise<OAuth2Client> {
   const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf-8"));
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  const { client_secret, client_id, redirect_uris } = credentials;
 
-  const oAuth2Client = new google.auth.OAuth2(
-    client_id,
-    client_secret,
-    redirect_uris[0]
-  );
+  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
   if (fs.existsSync(TOKEN_PATH)) {
     const token = JSON.parse(fs.readFileSync(TOKEN_PATH, "utf-8"));
@@ -36,62 +32,49 @@ async function authorize(): Promise<OAuth2Client> {
   });
 
   console.log("Authorize this app by visiting this url:", authUrl);
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  const code: string = await new Promise((resolve) => {
-    rl.question("Enter the code from that page here: ", (input) => {
-      rl.close();
-      resolve(input);
-    });
-  });
-
-  const { tokens } = await oAuth2Client.getToken(code);
-  oAuth2Client.setCredentials(tokens);
-  fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
-
-  return oAuth2Client;
+  console.log("Then add the generated token as 'token.json' manually or implement readline logic.");
+  throw new Error("No token found. Please add token.json.");
 }
 
 // -------------------------------------------------
-// METHOD: Upload XML to Drive
+// METHOD: Create XML Diagram on Drive
 // -------------------------------------------------
-export async function updateDiagramWithXml(xml: string): Promise<void> {
+async function createDiagram(xml: string): Promise<void> {
   const auth = await authorize();
   const drive = google.drive({ version: "v3", auth });
+console.log("xml:", xml);
+  const fileMetadata = {
+    name: FILE_NAME,
+    mimeType: "application/vnd.jgraph.mxfile",
+  };
 
-  await drive.files.update({
-    fileId: FILE_ID,
-    media: {
-      mimeType: "application/vnd.jgraph.mxfile",
-      body: Buffer.from(xml, "utf-8"),
-    },
+  const media = {
+    mimeType: "application/vnd.jgraph.mxfile",
+    body: fs.createReadStream("diagram.drawio"),
+  };
+
+
+  const response = await drive.files.create({
+    requestBody: fileMetadata,
+    media: media,
+    fields: "id, name",
   });
 
-  console.log("✅ Diagram updated with provided XML");
+  console.log(`✅ Diagram created on Drive with ID: ${response.data.id}`);
 }
 
 // -------------------------------------------------
-// Example usage
+// RUN
 // -------------------------------------------------
 if (require.main === module) {
-  const exampleXml = `<?xml version="1.0"?>
-<mxfile>
+  const xml = `<mxfile version="1.0">
   <diagram id="sample" name="Page-1">
-    <mxGraphModel>
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell value="Hello World" style="rounded=1;whiteSpace=wrap;" vertex="1" parent="1">
-          <mxGeometry x="20" y="20" width="160" height="80" as="geometry"/>
-        </mxCell>
-      </root>
+    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root></root>
     </mxGraphModel>
   </diagram>
 </mxfile>`;
-
-  updateDiagramWithXml(exampleXml).catch(console.error);
+  createDiagram(xml).catch(console.error);
 }
+
+export { createDiagram };
