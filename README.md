@@ -33,14 +33,14 @@ npm install
 cd ../frontend
 npm install
 ```
-3) cd ../backend/utils and create gemini.json like below (staicy/backend/utils/gemini.json)
+3) `cd ../backend/utils` and create gemini.json like below (staicy/backend/utils/gemini.json)
 ```
 {
   "apiKey" : "YOUR API KEY HERE"
 }
 ```
 4) Setup Google Oauth
-a) Click this link: https://console.cloud.google.com/apis/credentials
+a) Go to this link: https://console.cloud.google.com/apis/credentials
 Open the project picker and create a new project called Staicy
 ![Alt text](images/my-image1.png)
 ![Alt text](images/my-image2.png)
