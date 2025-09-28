@@ -118,6 +118,7 @@ export const LandingPage: React.FC = () => {
 
     const handleSendMessage = async () => {
       await SendMessages()
+      scrollToBottom()
     }
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
