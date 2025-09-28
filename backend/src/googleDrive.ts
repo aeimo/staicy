@@ -3,7 +3,6 @@ import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import * as path from "path";
 import { Readable } from "stream";
-import { file } from "googleapis/build/src/apis/file";
 // -------------------------------------------------
 // CONFIG
 // -------------------------------------------------
@@ -36,62 +35,85 @@ async function authorize(): Promise<OAuth2Client> {
   throw new Error("No token found. Please add token.json.");
 }
 
+
+
 // -------------------------------------------------
 // METHOD: Create XML Diagram on Drive
 // -------------------------------------------------
-async function createDiagram(xml: string): Promise<void> {
-  const auth = await authorize();
-  const drive = google.drive({ version: "v3", auth });
+export class DriveDiagramManager {
+  private drive: any;
+  private fileId: string | null = null;
 
-  const fileMetadata = {
-    name: FILE_NAME,
-    mimeType: "application/vnd.jgraph.mxfile",
-  };
+  constructor() {
+    this.drive = null;
+  }
 
-const media = {
-  mimeType: "application/vnd.jgraph.mxfile",
-  body: Readable.from([xml]), // Wrap XML string in a readable stream
-};
+  // Ensure file exists, create if not
+  async init(): Promise<void> {
+    const auth = await authorize();
+    const drive = google.drive({ version: "v3", auth });
+    this.drive = drive;
 
-  const response = await drive.files.create({
-    requestBody: fileMetadata,
-    media: media,
-    fields: "id, name",
-  });
+    const listRes = await this.drive.files.list({
+      q: `name='${FILE_NAME}' and mimeType='application/vnd.jgraph.mxfile' and trashed=false`,
+      fields: "files(id, name)",
+    });
 
-  const fileId = response.data.id!;
-  console.log(`✅ Diagram created on Drive with ID: ${fileId}`);
+    if (listRes.data.files && listRes.data.files.length > 0) {
+      this.fileId = listRes.data.files[0].id!;
+      console.log(`♻️ Found existing diagram with ID: ${this.fileId}`);
+    } else {
+      const fileMetadata = {
+        name: FILE_NAME,
+        mimeType: "application/vnd.jgraph.mxfile",
+      };
 
-  await drive.permissions.create({
-    fileId: fileId,
-    requestBody: {
-      role: "writer",
-      type: "anyone",
-    },
-  });
+      const emptyXml = `<?xml version="1.0" encoding="UTF-8"?><mxfile></mxfile>`;
+      const media = {
+        mimeType: "application/vnd.jgraph.mxfile",
+        body: Readable.from([emptyXml]),
+      };
 
-  const driveLink = `https://drive.google.com/file/d/${fileId}/view`;
-  const drawioLink = `https://app.diagrams.net/?mode=google&fileId=${fileId}`;
-  console.log(`🔗 Public Drive Link: ${driveLink}`);
-  console.log(`🔗 Open in draw.io: ${drawioLink}`);
+      const createRes = await this.drive.files.create({
+        requestBody: fileMetadata,
+        media,
+        fields: "id",
+      });
+
+      this.fileId = createRes.data.id!;
+      console.log(`✅ Created new diagram with ID: ${this.fileId}`);
+
+      // Optional: make it writable by anyone with link
+      await this.drive.permissions.create({
+        fileId: this.fileId,
+        requestBody: {
+          role: "writer",
+          type: "anyone",
+        },
+      });
+    }
+  }
+
+  async updateDiagram(xml: string): Promise<string> {
+    if (!this.fileId) {
+      throw new Error("Diagram file not initialized. Call init() first.");
+    }
+
+    const media = {
+      mimeType: "application/vnd.jgraph.mxfile",
+      body: Readable.from([xml]),
+    };
+
+    await this.drive.files.update({
+      fileId: this.fileId,
+      media,
+    });
+
+    console.log(`📄 Diagram updated on Drive (ID: ${this.fileId})`);
+
+    const shareableLink = `https://app.diagrams.net/?mode=google&fileId=${this.fileId}`;
+    console.log(`🔗 Open in draw.io: https://app.diagrams.net/?mode=google&fileId=${this.fileId}`);
+
+    return shareableLink
+  }
 }
-
-// -------------------------------------------------
-// RUN
-// -------------------------------------------------
-if (require.main === module) {
-  const dummyXml = `<?xml version="1.0" encoding="UTF-8"?>
-<mxfile version="1.0">
-  <diagram id="dummy" name="Page-1">
-    <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>`;
-  createDiagram(dummyXml).catch(console.error);
-}
-
-export { createDiagram };

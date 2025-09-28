@@ -1,8 +1,29 @@
-import googleDrive = require("../src/googleDrive");
 import { GeminiAgent } from "./openAIAgent";
 import { PromptBuilder } from "./promptBuilder";
+import { DriveDiagramManager } from '../src/googleDrive';
+
+
 
 async function main() {
+    let diagramManager: DriveDiagramManager;
+
+    diagramManager = new DriveDiagramManager();
+    await diagramManager.init();
+
+    const dummyXml = `<?xml version="1.0" encoding="UTF-8"?>
+    <mxfile>
+        <diagram id="demo" name="Page-1">
+        <mxGraphModel>
+            <root>
+            <mxCell id="0"/>
+            <mxCell id="1" parent="0"/>
+            </root>
+        </mxGraphModel>
+        </diagram>
+    </mxfile>`;
+
+    await diagramManager.updateDiagram(dummyXml);
+
     const agent = new GeminiAgent();
     const Pb = new PromptBuilder();
     console.log(Pb.getPrompts());
@@ -19,7 +40,7 @@ async function main() {
         console.error("Error querying GeminiAgent:", error);
         response = "";
     }
-    googleDrive.createDiagram(response);
+    await diagramManager.updateDiagram(response);
 }
 
 main();
