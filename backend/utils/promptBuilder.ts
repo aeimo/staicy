@@ -67,6 +67,9 @@ export class PromptBuilder {
     fileInputs.forEach((file, i) => {
       formattedInput += `File ${i + 1} (${file.name}):\n${file.content}\n\n`;
     });
+    if (fileInputs.length === 0) {
+      formattedInput += "Reference the added context provided by the user.";
+    }
     return formattedInput;
   }
 }

@@ -25,7 +25,7 @@ export class GeminiAgent implements LLMClient {
 
         const user_message = {role: "user", parts: [{text: prompt}]};
 
-        if (system_prompt != "") {
+        if (this.history.length === 0 && system_prompt != "") {
             const system_message = {role: "user", parts: [{text: "System Instructions: " + system_prompt}]};
             this.history.push(system_message);
         }
