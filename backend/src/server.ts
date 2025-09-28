@@ -78,19 +78,20 @@ app.listen(5001, async () => {
   const dM = new DriveDiagramManager();
   await dM.init()
   const xml = 
-    `<mxfile host="app.diagrams.net">
-    <diagram name="Page-1">
-        <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1"
-                    tooltips="1" connect="1" arrows="1" fold="1" page="1"
-                    pageScale="1" pageWidth="827" pageHeight="1169"
-                    math="0" shadow="0">
-        <root>
-            <mxCell id="0" />
-            <mxCell id="1" parent="0" />
-        </root>
-        </mxGraphModel>
-    </diagram>
-    </mxfile>
+    `<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="28.2.5">
+  <diagram name="Page-1" id="0">
+    <mxGraphModel dx="877" dy="608" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="d-TJZZJhtkehiR7Rgj9r-2" value="&lt;font data-font-src=&quot;https://fonts.googleapis.com/css?family=Story+Script&quot; face=&quot;Story Script&quot; style=&quot;color: rgb(0, 0, 0); font-size: 36px;&quot;&gt;Generating Your Diagram...&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#FFFFFF;" parent="1" vertex="1">
+          <mxGeometry x="270" y="210" width="310" height="130" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
     `;
 
   await dM.updateDiagram(xml)
