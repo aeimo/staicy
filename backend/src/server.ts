@@ -32,9 +32,9 @@ app.post('/api/message', async (req, res) => {
 
  try {
    // Query GeminiAgent
-    console.log('Calling agent.query with prompt (trim):', String(prompt).slice(0, 200));
+    console.log('Calling agent.query with promp:\n\n' + String(prompt) + '\n\n');
     const response = await agent.query(prompt, system_prompt, style_guide);
-    console.log('Agent response:' + response);
+    console.log('Agent response: \n' + response);
 
     // Parse the response to extract XML and commentary
     let parsedResponse: { xml: string; commentary: string } | null;
@@ -43,8 +43,8 @@ app.post('/api/message', async (req, res) => {
     const chatResponse = parsedResponse?.commentary;
     const xml = parsedResponse?.xml;
 
-    console.log("Chat Response:", chatResponse);
-    console.log("Extracted XML:", xml);
+    console.log("Chat Response: \n", chatResponse, "\n");
+    console.log("Extracted XML:", xml, "\n");
 
 
     const driverManager = new DriveDiagramManager();
@@ -71,4 +71,28 @@ app.post('/api/message', async (req, res) => {
 });
 
 
-app.listen(5001, () => console.log('Server running on http://localhost:5001'));
+app.listen(5001, async () => {
+  console.log('Server running on http://localhost:5001');
+
+  // Run init AFTER server is up
+  const dM = new DriveDiagramManager();
+  await dM.init()
+  const xml = 
+    `<mxfile host="app.diagrams.net">
+    <diagram name="Page-1">
+        <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1"
+                    tooltips="1" connect="1" arrows="1" fold="1" page="1"
+                    pageScale="1" pageWidth="827" pageHeight="1169"
+                    math="0" shadow="0">
+        <root>
+            <mxCell id="0" />
+            <mxCell id="1" parent="0" />
+        </root>
+        </mxGraphModel>
+    </diagram>
+    </mxfile>
+    `;
+
+  await dM.updateDiagram(xml)
+    .catch(err => console.error("DriveDiagramManager init failed:", err));
+});

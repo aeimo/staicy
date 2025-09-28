@@ -105,7 +105,7 @@ drawio_prompts:
     3. Maintain a clean layout with minimal overlapping lines and elements.
     4. Use arrows to indicate relationships and interactions between components.
     5. Group related elements together to enhance clarity.
-    6. Try to avoid overlapping lines and elements as much as possible.
+    6. Try to avoid overlapping lines and elements as much as possible. If lines must cross, do so at right angles and avoid crossing over entity boxes.
     7. Make the diagram visually appealing and impressibe looking, but also easy to understand at a glance.
     8. Text should wrap and fit within the entity boxes.
     9. Do not let connections cross over entity boxes if possible.
