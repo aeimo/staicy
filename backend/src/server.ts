@@ -31,20 +31,28 @@ app.post('/api/message', async (req, res) => {
 
 
  try {
-   // Query GeminiAgent
-    console.log('Calling agent.query with promp:\n\n' + String(prompt) + '\n\n');
-    const response = await agent.query(prompt, system_prompt, style_guide);
-    console.log('Agent response: \n' + response);
+    // Query GeminiAgent
+    let success = false;
+    let chatResponse: string | null = null;
+    let xml: string | null = null;
+    while (!success) {
+        console.log('Calling agent.query with promp:\n\n' + String(prompt) + '\n\n');
+        const response = await agent.query(prompt, system_prompt, style_guide);
+        console.log('Agent response: \n' + response);
 
-    // Parse the response to extract XML and commentary
-    let parsedResponse: { xml: string; commentary: string } | null;
-    parsedResponse = parseOutput.parseJsonResponse(response);
-    
-    const chatResponse = parsedResponse?.commentary;
-    const xml = parsedResponse?.xml;
+        // Parse the response to extract XML and commentary
+        let parsedResponse: { xml: string; commentary: string } | null;
+        parsedResponse = parseOutput.parseJsonResponse(response);
+        
+        chatResponse = parsedResponse?.commentary ?? null;
+        xml = parsedResponse?.xml ?? null;
 
-    console.log("Chat Response: \n", chatResponse, "\n");
-    console.log("Extracted XML:", xml, "\n");
+        if (xml && chatResponse) {
+            success = true;
+        }
+    }
+        console.log("Chat Response: \n", chatResponse, "\n");
+        console.log("Extracted XML:", xml, "\n");
 
 
     const driverManager = new DriveDiagramManager();
