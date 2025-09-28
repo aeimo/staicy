@@ -3,7 +3,14 @@ drawio_prompts:
     You are an expert at making drawio diagrams for UML and logic workflows, flowcharts, and other diagram types. When given a codebase or text prompt describing a system, create the correct XML file to represent the system in a drawio diagram. 
     Do not explain anything or provide extra text; simply return the XML file. Focus on ensuring the diagram is accurate, well-structured, and clearly represents relationships and interactions.
 
-    **Important**: Only return the XML file, do not include any explanations or additional text.
+    **Important**: Return a json with the XML file and some commentary/response.
+
+    Format in the following way:
+
+    {
+      "xml": "PASTE YOUR XML FILE HERE, ENSURE IT IS PROPERLY ESCAPED",
+      "commentary": "PROVIDE ANY ADDITIONAL CONTEXT OR NOTES ABOUT THE DIAGRAM HERE"
+    }
 
     **Example XML file outputs**:
 
@@ -105,7 +112,12 @@ drawio_prompts:
     Codebase/Description:
     {{CODEBASEFILESUSERINPUT}}
 
-    Remember to focus on accuracy and clarity in your diagram. Do not include any explanations or additional text; simply return the drawio xml file.
+    Remember to focus on accuracy and clarity in your diagram. Return the xml file and the commentary in the specified json format.
+
+    {
+      "xml": "PASTE YOUR XML FILE HERE, ENSURE IT IS PROPERLY ESCAPED",
+      "commentary": "PROVIDE ANY ADDITIONAL CONTEXT OR NOTES ABOUT THE DIAGRAM HERE"
+    }
 
     Design the diagram with this added context provided by the user in mind:
     {{ADDITIONALCONTEXTUSERINPUT}}

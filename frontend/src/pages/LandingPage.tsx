@@ -97,47 +97,66 @@ export const LandingPage: React.FC = () => {
   }
 
   const handleSendMessage = async () => {
-    if (!userPrompt.trim() || isGenerating) return
+ if (!userPrompt.trim() || isGenerating) return;
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: userPrompt,
-      timestamp: new Date()
-    }
 
-    setMessages(prev => [...prev, userMessage])
-    setUserPrompt('')
-    setIsGenerating(true)
-    setShowChatHistory(true)
+ const userMessage: ChatMessage = {
+   id: Date.now().toString(),
+   type: 'user',
+   content: userPrompt,
+   timestamp: new Date(),
+ };
 
-    // Add AI thinking message
-    const thinkingMessage: ChatMessage = {
-      id: (Date.now() + 1).toString(),
-      type: 'ai',
-      content: '',
-      timestamp: new Date(),
-      isGenerating: true
-    }
-    setMessages(prev => [...prev, thinkingMessage])
 
-    // Simulate AI processing with hardcoded response
-    setTimeout(() => {
-      const aiResponse = getHardcodedResponse(userPrompt)
-      setCurrentDiagram(getHardcodedDiagram())
-      
-      setMessages(prev => prev.map(msg => 
-        msg.id === thinkingMessage.id 
-          ? {
-              ...msg,
-              content: aiResponse,
-              isGenerating: false
-            }
-          : msg
-      ))
-      setIsGenerating(false)
-    }, 2000)
-  }
+ setMessages(prev => [...prev, userMessage]);
+ setUserPrompt('');
+ setIsGenerating(true);
+ setShowChatHistory(true);
+
+
+ // Add AI thinking message
+ const thinkingMessage: ChatMessage = {
+   id: (Date.now() + 1).toString(),
+   type: 'ai',
+   content: '',
+   timestamp: new Date(),
+   isGenerating: true,
+ };
+ setMessages(prev => [...prev, thinkingMessage]);
+
+
+ try {
+   const response = await fetch('http://localhost:5001/api/message', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ prompt: userPrompt }),
+   });
+
+
+   const data = await response.json();
+
+
+   setMessages(prev =>
+     prev.map(msg =>
+       msg.id === thinkingMessage.id
+         ? { ...msg, content: data.content, isGenerating: false }
+         : msg
+     )
+   );
+ } catch (error) {
+   setMessages(prev =>
+     prev.map(msg =>
+       msg.id === thinkingMessage.id
+         ? { ...msg, content: 'Error connecting to server.', isGenerating: false }
+         : msg
+     )
+   );
+ } finally {
+   setIsGenerating(false);
+ }
+};
+
+
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
