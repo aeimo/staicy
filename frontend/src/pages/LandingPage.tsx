@@ -243,7 +243,7 @@ export const LandingPage: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 relative overflow-hidden">
+    <div className="h-screen flex bg-black relative overflow-hidden">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(74,158,255,0.02)] to-transparent"></div>
       {/* Left Side - Chat History with Input (shown after first prompt) */}
@@ -474,7 +474,7 @@ export const LandingPage: React.FC = () => {
                 opacity: 1,
                 transition: 'opacity 0.3s ease-in-out'
               }}
-              src="https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&dark=auto#G1Uuk_vzD4F4P4W_y_WdP6a3babjmZUUaf"
+              src="https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&dark=1#G1Uuk_vzD4F4P4W_y_WdP6a3babjmZUUaf"
               title="Draw.io Viewer"
               allow="clipboard-read; clipboard-write"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals allow-top-navigation"
