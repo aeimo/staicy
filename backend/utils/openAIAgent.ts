@@ -13,8 +13,8 @@ export interface GeminiResponse {
   }[];
 }
 
-const CREDENTIALS_PATH = path.join(__dirname, "credentials.json");
-const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf-8"));
+const GEMINI_PATH = path.join(__dirname, "gemini.json");
+const key = JSON.parse(fs.readFileSync(GEMINI_PATH, "utf-8"));
 
 // Gemini Agent Implementation 
 export class GeminiAgent implements LLMClient {
@@ -23,7 +23,7 @@ export class GeminiAgent implements LLMClient {
     private history: { role: string, parts: { text: string }[] }[] = [];
     
 
-    constructor(apiKey: string = credentials.apiKey) {
+    constructor(apiKey: string = key.apiKey) {
         this.apiKey = apiKey;
     }
     
