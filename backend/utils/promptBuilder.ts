@@ -62,7 +62,7 @@ export class PromptBuilder {
     return this.prompts.verify_prompt;
   }
 
-  processUserInputFiles(fileInputs: FileInput[]): string {
+  processUserInputFiles(fileInputs: {"name": string, "content": string}[]): string {
     let formattedInput = "The user has provided the following files:\n";
     fileInputs.forEach((file, i) => {
       formattedInput += `File ${i + 1} (${file.name}):\n${file.content}\n\n`;

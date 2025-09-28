@@ -21,6 +21,7 @@ export const LandingPage: React.FC = () => {
   const [showChatHistory, setShowChatHistory] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [files, setFiles] = useState<{ name: string; content: string }[]>([])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -44,180 +45,98 @@ export const LandingPage: React.FC = () => {
      updateStatus('Refreshing diagram...')
   }
 
-  // const startAutoRefresh = () => {
-  //   if (refreshInterval) {
-  //     clearInterval(refreshInterval)
-  //   }
-    
-  //   const interval = setInterval(() => {
-  //     refreshIframe()
-  //   }, 10000) // Changed to 10 seconds
-    
-  //   setRefreshInterval(interval)
-  //   updateStatus('Auto-refresh started (10s)')
-  // }
-
-  // const stopAutoRefresh = () => {
-  //   if (refreshInterval) {
-  //     clearInterval(refreshInterval)
-  //     setRefreshInterval(null)
-  //     updateStatus('Auto-refresh stopped')
-  //   }
-  // }
-
-
-
-
-
-
-  // useEffect(() => {
-  //   scrollToBottom()
-  // }, [messages])
-
-  // useEffect(() => {
-  //   // Start auto-refresh when user reaches the second page (showChatHistory is true)
-  //   if (showChatHistory) {
-  //     startAutoRefresh()
-  //   } else {
-  //     stopAutoRefresh()
-  //   }
-
-  //   // Cleanup on unmount
-  //   return () => {
-  //     stopAutoRefresh()
-  //   }
-  // }, [showChatHistory])
-
-
-
   const handleGoHome = () => {
     setShowChatHistory(false)
     setMessages([])
     setUserPrompt('')
+    setFiles([]) // ✅ clear files on reset
+  }
+
+  // ✅ New unified function
+  const SendMessages = async () => {
+    if ((!userPrompt.trim() && files.length === 0) || isGenerating) return
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: userPrompt,
+      timestamp: new Date(),
+    }
+
+    setMessages(prev => [...prev, userMessage])
+    setUserPrompt('')
+    setIsGenerating(true)
+    setShowChatHistory(true)
+
+    const thinkingMessage: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+      type: 'ai',
+      content: '',
+      timestamp: new Date(),
+      isGenerating: true,
+    }
+    setMessages(prev => [...prev, thinkingMessage])
+
+    try {
+      // If you need to send files as FormData:
+      // const formData = new FormData();
+      // formData.append("prompt", userPrompt);
+      // files.forEach(f => formData.append("files", f));
+
+      const response = await fetch('http://localhost:5001/api/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: userPrompt,
+          files: files, // ✅ full file objects with content
+        }),
+      })
+
+      const data = await response.json()
+
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === thinkingMessage.id
+            ? { ...msg, content: data.content, isGenerating: false }
+            : msg
+        )
+      )
+    } catch (error) {
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === thinkingMessage.id
+            ? { ...msg, content: 'Error connecting to server.', isGenerating: false }
+            : msg
+        )
+      )
+    } finally {
+      refreshIframe()
+      setIsGenerating(false)
+      setFiles([]) // ✅ clear files after sending
+    }
   }
 
     const handleSendMessage = async () => {
- if (!userPrompt.trim() || isGenerating) return;
+      await SendMessages()
+    }
 
-
- const userMessage: ChatMessage = {
-   id: Date.now().toString(),
-   type: 'user',
-   content: userPrompt,
-   timestamp: new Date(),
- };
-
-
- setMessages(prev => [...prev, userMessage]);
- setUserPrompt('');
- setIsGenerating(true);
- setShowChatHistory(true);
-
-
- // Add AI thinking message
- const thinkingMessage: ChatMessage = {
-   id: (Date.now() + 1).toString(),
-   type: 'ai',
-   content: '',
-   timestamp: new Date(),
-   isGenerating: true,
- };
- setMessages(prev => [...prev, thinkingMessage]);
-
-
- try {
-   const response = await fetch('http://localhost:5001/api/message', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     body: JSON.stringify({ prompt: userPrompt }),
-   });
-
-
-   const data = await response.json();
-
-
-   setMessages(prev =>
-     prev.map(msg =>
-       msg.id === thinkingMessage.id
-         ? { ...msg, content: data.content, isGenerating: false }
-         : msg
-     )
-   );
- } catch (error) {
-   setMessages(prev =>
-     prev.map(msg =>
-       msg.id === thinkingMessage.id
-         ? { ...msg, content: 'Error connecting to server.', isGenerating: false }
-         : msg
-     )
-   );
- } finally {
-    refreshIframe()
-   setIsGenerating(false);
- }
-};
-
-const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const files = Array.from(event.target.files || []);
-  if (files.length === 0) return;
-
-  if (isGenerating) return;
-
-  const filePrompt = `Analyze these ${files.length} uploaded file(s): ${files.map(f => f.name).join(', ')} and generate a draw.io diagram XML.`;
-
-  const userMessage: ChatMessage = {
-    id: Date.now().toString(),
-    type: "user",
-    content: filePrompt,
-    timestamp: new Date(),
-  };
-
-  setMessages(prev => [...prev, userMessage]);
-  setIsGenerating(true);
-  setShowChatHistory(true);
-
-  // Add AI thinking message
-  const thinkingMessage: ChatMessage = {
-    id: (Date.now() + 1).toString(),
-    type: "ai",
-    content: "",
-    timestamp: new Date(),
-    isGenerating: true,
-  };
-
-  setMessages(prev => [...prev, thinkingMessage]);
-
-  try {
-    const response = await fetch('http://localhost:5001/api/message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ prompt: filePrompt }),
-    });
-
-    const data = await response.json();
-
-    setMessages(prev =>
-      prev.map(msg =>
-        msg.id === thinkingMessage.id
-          ? { ...msg, content: data.content, isGenerating: false }
-          : msg
-      )
-    );
-  } catch (error) {
-    setMessages(prev =>
-      prev.map(msg =>
-        msg.id === thinkingMessage.id
-          ? { ...msg, content: 'Error connecting to server.', isGenerating: false }
-          : msg
-      )
-    );
-  } finally {
-    refreshIframe();
-    setIsGenerating(false);
-  }
-};
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = Array.from(event.target.files || [])
+      Promise.all(
+        selectedFiles.map(
+          f =>
+            new Promise<{ name: string; content: string }>((resolve, reject) => {
+              const reader = new FileReader()
+              reader.onload = () =>
+                resolve({ name: f.name, content: reader.result as string })
+              reader.onerror = reject
+              reader.readAsText(f) // 🔑 read as plain text
+            })
+        )
+      ).then(newFiles => {
+        setFiles(prev => [...prev, ...newFiles])
+      })
+    }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
