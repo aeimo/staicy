@@ -11,7 +11,7 @@ import { DriveDiagramManager } from './googleDrive';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increase limit if needed
 
 
 const agent = new GeminiAgent();
@@ -20,14 +20,14 @@ const Pb = new PromptBuilder();
 
 // POST /api/message - runs the GeminiAgent workflow
 app.post('/api/message', async (req, res) => {
- const { prompt: userPrompt } = req.body;
-
+ const { prompt: userPrompt, files } = req.body;
+    console.log("Received prompt:", userPrompt);
 
  // Build prompt for the agent
  const system_prompt = Pb.getSystemPrompt();
  const style_guide = Pb.getStyleGuide();
  const additional_context = userPrompt || "Make a random XML. I have not given any files. Make sure the XML is valid. It has to load properly in draw.io.";
- const prompt = Pb.buildInitialPrompt([], additional_context);
+ const prompt = Pb.buildInitialPrompt(files, additional_context);
 
 
  try {
