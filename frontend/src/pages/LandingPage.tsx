@@ -475,7 +475,7 @@ export const LandingPage: React.FC = () => {
                 opacity: 1,
                 transition: 'opacity 0.3s ease-in-out'
               }}
-              src="https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&dark=1#G1Uuk_vzD4F4P4W_y_WdP6a3babjmZUUaf"
+              src="ENTER_YOUR_OWN_DRAWIO_EMBED_URL_HERE"
               title="Draw.io Viewer"
               allow="clipboard-read; clipboard-write"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals allow-top-navigation"
