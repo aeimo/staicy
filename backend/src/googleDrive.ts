@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import * as path from "path";
 import { Readable } from "stream";
+import { file } from "googleapis/build/src/apis/file";
 // -------------------------------------------------
 // CONFIG
 // -------------------------------------------------
@@ -58,7 +59,21 @@ const media = {
     fields: "id, name",
   });
 
-  console.log(`✅ Diagram created on Drive with ID: ${response.data.id}`);
+  const fileId = response.data.id!;
+  console.log(`✅ Diagram created on Drive with ID: ${fileId}`);
+
+  await drive.permissions.create({
+    fileId: fileId,
+    requestBody: {
+      role: "writer",
+      type: "anyone",
+    },
+  });
+
+  const driveLink = `https://drive.google.com/file/d/${fileId}/view`;
+  const drawioLink = `https://app.diagrams.net/?mode=google&fileId=${fileId}`;
+  console.log(`🔗 Public Drive Link: ${driveLink}`);
+  console.log(`🔗 Open in draw.io: ${drawioLink}`);
 }
 
 // -------------------------------------------------

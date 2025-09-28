@@ -19,7 +19,7 @@ async function main() {
         console.error("Error querying GeminiAgent:", error);
         response = "";
     }
-    googleDrive.updateDiagram(response);
+    googleDrive.createDiagram(response);
 }
 
 main();
