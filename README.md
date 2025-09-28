@@ -48,17 +48,17 @@ Open the project picker and create a new project called Staicy
 b) Create new credentials: Click Create Credentials → OAuth client ID.
 ![Alt text](images/my-image4.png)
 c) It might prompt you to configure consent screen. Click Configure Consent Screen and then Click Get Started
-![Alt text] (images/my-image5.png)
+![Alt text](images/my-image5.png)
 d) Type Staicy for App name and enter your email address for User support email. Then click External for audience. Enter your email address again where it says Contact Information. Then click Finish, continue, and create.
-![Alt text] (images/my-image6.png)
+![Alt text](images/my-image6.png)
 5) Finish setting up your Oauth Client Id. Click Clients, then Create Client
-![Alt text] (images/my-image6.png)
+![Alt text](images/my-image7.png)
 a) Enter Web Application for Application Type and then WebClient1 for Name. Add an authorized redirect URI. Enter http://localhost. Click create
 7) From the pop-up click Download JSON.
-![Alt text] (images/my-image6.png)
+![Alt text](images/my-image8.png)
 8) Rename this json credentials.json and save it in backend/src/. Delete the `{"web":` at the start of the file if it is there and the extra closing `}` if it is there.
 9) Go back to the pop-up and click ok. Then click Audience and then click Add users under Test users. Enter your same email address again. Hit enter and then click save.
-![Alt text] (images/my-image6.png)
+![Alt text](images/my-image9.png)
 9) Run `npm install googleapis` then `npx ts-node src/getDriveToken.ts`
 10) In the terminal log. Click the link, then login with your same gmail address again. Then click continue and continue. You will reach a site that can't be reached. Copy the Url. `http://localhost/?code=YOURCODEHERE&scope=https://www.googleapis.com/auth/drive.file`. Copy the value between the `=` and the `&` where it says YOURCODEHERE in the example shown. That is your code. Enter that value in the command line and hit enter. This will create token.json in backend/src.
 11) run `npx ts-node src/server.ts`. You will get a long error message. Near the end of the message it will say. `message: 'Google Drive API has not been used in project 456478292515 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/drive.googleapis.com/overview?project=456478292515 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.'` Click the link in that part of the error message. Then click enable.
@@ -69,7 +69,7 @@ Server running on http://localhost:5001
 📄 Diagram updated on Drive (ID: 1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB)
 🔗 Open in draw.io: https://app.diagrams.net/?mode=google&fileId=1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
 ```
-![Alt text] (images/my-image6.png)
+![Alt text](images/my-image10.png)
 13) Click open with draw.io. Then click File -> Embed -> IFrame. Leave the default settings and click create. Copy the link within the iframe after src=". Then close that pop-up window.
 14) In staicy/frontend/src/pages open LandingPage.tsx. Scroll to line 478 and enter this link where it says src="ENTER_YOUR_OWN_DRAWIO_EMBED_URL_HERE".
 15) Now the repository links a drawing directly to your google drive.
