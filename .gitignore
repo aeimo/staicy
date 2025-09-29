@@ -9,6 +9,7 @@ pnpm-debug.log*
 credentials.json
 token.json
 gemini.json
+drawio.json
 
 # Production builds
 dist/

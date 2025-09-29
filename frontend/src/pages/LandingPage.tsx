@@ -5,6 +5,7 @@ import {
   Loader2,
   Download
 } from 'lucide-react'
+import drawioData from './drawio.json';
 
 interface ChatMessage {
   id: string
@@ -22,6 +23,7 @@ export const LandingPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [files, setFiles] = useState<{ name: string; content: string }[]>([])
+  const [drawioUrl, setDrawioUrl] = useState<string>(drawioData.url.replace('dark=auto', 'dark=1'));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -475,7 +477,7 @@ export const LandingPage: React.FC = () => {
                 opacity: 1,
                 transition: 'opacity 0.3s ease-in-out'
               }}
-              src="ENTER_YOUR_OWN_DRAWIO_EMBED_URL_HERE"
+              src={drawioUrl}
               title="Draw.io Viewer"
               allow="clipboard-read; clipboard-write"
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals allow-top-navigation"
