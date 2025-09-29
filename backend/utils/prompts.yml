@@ -110,7 +110,8 @@ drawio_prompts:
     8. Text should wrap and fit within the entity boxes.
     9. Do not let connections cross over entity boxes if possible.
     10. Make it look very visually appealing and clear.
-    11. MOST IMPORTANTLY: Ensure it is a valid XML diagram. Do not violate any XML rules.
+    11. Make sure the boxes are large enough to fit the text inside them.
+    12. MOST IMPORTANTLY: Ensure it is a valid XML diagram. Do not violate any XML rules.
     
   prompt: |
     Given the following codebase or text description of a codebase, create a drawio xml file that accurately represents the structure and relationships within the codebase. Ensure that the diagram is clear, well-organized, and adheres to the provided style guidelines.
