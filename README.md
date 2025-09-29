@@ -75,7 +75,12 @@ Server running on http://localhost:5001
 
 13) Click open with draw.io. Then click File -> Embed -> IFrame. Leave the default settings and click create. Copy the link within the iframe where it says src="LongLinkHere". Then close that pop-up window.
 
-14) In staicy/frontend/src/pages open LandingPage.tsx. Scroll to line 478 and enter this link where it says src="ENTER_YOUR_OWN_DRAWIO_EMBED_URL_HERE".
+14) In staicy/frontend/src/pages, add drawio.json formatted as shown below:
+```
+{
+  "url" : "THE_LINK_YOU_COPIED_IN_STEP_13"
+}
+```
 
 15) Now the repository links a drawing directly to your google drive.
 
