@@ -72,12 +72,27 @@ Server running on http://localhost:5001
 🔗 Open in draw.io: https://app.diagrams.net/?mode=google&fileId=1ldI60cGw-PEy_kAvBpR_lth2ru0VUjEB
 ```
 ![Alt text](images/my-image10.png)
+
 13) Click open with draw.io. Then click File -> Embed -> IFrame. Leave the default settings and click create. Copy the link within the iframe where it says src="LongLinkHere". Then close that pop-up window.
+
 14) In staicy/frontend/src/pages open LandingPage.tsx. Scroll to line 478 and enter this link where it says src="ENTER_YOUR_OWN_DRAWIO_EMBED_URL_HERE".
+
 15) Now the repository links a drawing directly to your google drive.
 
+## How to Open App
+After the above setup, you are ready to use the feature.
 
+### Option 1 (Preferred)
+Open two terminals. In one cd to the backend director. In the other cd to the frontend directoy.
+From the backend directory, run
+`npx ts-node src/server.ts`
+From the frontend directory, run
+`npm run dev`
+In a browser, search localhost:3000
 
+### Option 2
+From the staicy root directory run `npm run dev`
+In a browser, search localhost:3000
 
 ## 🏗️ Architecture
 
@@ -127,59 +142,6 @@ src/
 - **PlantUML**: UML diagram support
 - **Natural Language Processing**: Content analysis and suggestions
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+ and npm
-- PostgreSQL database
-- Redis (optional, for caching)
-- OpenAI API key (for AI features)
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/your-org/staicy.git
-cd staicy
-```
-
-2. **Install dependencies**
-```bash
-# Install root dependencies
-npm install
-
-# Install backend dependencies
-cd backend
-npm install
-
-# Install frontend dependencies
-cd ../frontend
-npm install
-```
-
-3. **Environment Setup**
-```bash
-# Copy environment files
-cp backend/env.example backend/.env
-cp frontend/.env.example frontend/.env
-
-# Configure your environment variables
-# See backend/env.example for required variables
-```
-
-5. **Start Development Servers**
-```bash
-# From the root directory
-npm run dev
-
-# Setup Backend (port 5001)
-cd backend && npm run dev
-```
-
-6. **Access the Application**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5001
-
 ## 📚 API Documentation
 
 ### Authentication Endpoints
@@ -212,44 +174,6 @@ cd backend && npm run dev
 - `POST /api/integrations/slack/webhook` - Slack webhook
 - `POST /api/integrations/confluence/sync` - Confluence sync
 
-## 🔧 Configuration
-
-### Environment Variables
-
-#### Backend (.env)
-```env
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/staicy"
-
-# JWT
-JWT_SECRET="your-super-secret-jwt-key"
-JWT_EXPIRES_IN="7d"
-
-# AI Services
-OPENAI_API_KEY="your-openai-api-key"
-ANTHROPIC_API_KEY="your-anthropic-api-key"
-
-# AWS S3
-AWS_ACCESS_KEY_ID="your-aws-access-key"
-AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
-AWS_REGION="us-east-1"
-AWS_S3_BUCKET="staicy-documents"
-
-# Redis
-REDIS_URL="redis://localhost:6379"
-
-# External Integrations
-GITHUB_CLIENT_ID="your-github-client-id"
-GITHUB_CLIENT_SECRET="your-github-client-secret"
-SLACK_CLIENT_ID="your-slack-client-id"
-SLACK_CLIENT_SECRET="your-slack-client-secret"
-```
-
-#### Frontend (.env)
-```env
-VITE_API_URL="http://localhost:3001"
-VITE_APP_NAME="Staicy"
-```
 
 ## 🚀 Deployment
 
@@ -291,6 +215,12 @@ npm start
 - Update documentation
 - Follow the existing code style
 - Use conventional commits
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- Gemini API Key
 
 ## 📄 License
 
